@@ -1,0 +1,79 @@
+═══════════════════════════════════════════════════════════
+  CLEAR BROWSER CACHE - STEP BY STEP
+═══════════════════════════════════════════════════════════
+
+The browser is using OLD cached JavaScript files.
+You MUST clear the cache to load the new code with the fix.
+
+METHOD 1: Hard Refresh (Quickest)
+──────────────────────────────────
+1. Make sure you're on: http://localhost:5173
+2. Press: Ctrl + Shift + R
+   (Hold all three keys together)
+3. Wait for page to reload
+4. Check console (F12) for: "🔧 POS API Configuration"
+
+METHOD 2: Developer Tools Clear Cache
+──────────────────────────────────────
+1. Press F12 to open Developer Tools
+2. Right-click the refresh button (next to address bar)
+3. Select "Empty Cache and Hard Reload"
+4. Wait for page to reload
+5. Check console for: "🔧 POS API Configuration"
+
+METHOD 3: Manual Cache Clear
+─────────────────────────────
+1. Press: Ctrl + Shift + Delete
+2. Select "Cached images and files"
+3. Time range: "All time"
+4. Click "Clear data"
+5. Close and reopen browser
+6. Go to: http://localhost:5173
+7. Check console (F12)
+
+METHOD 4: Incognito/Private Window
+───────────────────────────────────
+1. Press: Ctrl + Shift + N (Chrome/Edge)
+   Or: Ctrl + Shift + P (Firefox)
+2. Go to: http://localhost:5173
+3. Try the refill request
+4. This uses NO cache
+
+METHOD 5: Different Browser
+────────────────────────────
+If using Chrome, try Edge or Firefox
+If using Edge, try Chrome or Firefox
+
+═══════════════════════════════════════════════════════════
+  WHAT YOU SHOULD SEE AFTER CLEARING CACHE
+═══════════════════════════════════════════════════════════
+
+In Console (F12):
+✅ 🔧 POS API Configuration:
+✅   VITE_POS_BASE_URL from env: undefined
+✅   Using baseUrl: http://localhost:5001
+✅   Development mode: true
+✅ ✅ Backend connection successful!
+
+When submitting refill request:
+✅ Submitting refill request: {...}
+✅ Creating refill request to: http://localhost:5001/api/refill-requests
+✅ Response status: 201
+✅ Response data: {success: true, ...}
+
+═══════════════════════════════════════════════════════════
+  IF STILL NOT WORKING
+═══════════════════════════════════════════════════════════
+
+Try this nuclear option:
+
+1. Close ALL browser windows completely
+2. Wait 5 seconds
+3. Open Task Manager (Ctrl + Shift + Esc)
+4. End all browser processes
+5. Wait 5 seconds
+6. Open browser fresh
+7. Go to: http://localhost:5173
+8. Try refill request
+
+═══════════════════════════════════════════════════════════
