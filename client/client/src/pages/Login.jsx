@@ -46,7 +46,7 @@ export default function Login() {
     
     try {
       console.log('Sending login request...');
-      const response = await fetch('http://localhost:5001/api/customers/login', {
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ export default function Login() {
             }}
           >
             <div style={{ background: '#f1f5f9', padding: '14px 20px', borderBottom: '1px solid #e2e8f0' }}>
-              <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.9rem', fontWeight: 900, color: '#0f172a' }}>WELCOME BACK SIZSUM!</h2>
+              <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.9rem', fontWeight: 900, color: '#0f172a' }}>WELCOME BACK SISZUM!</h2>
             </div>
 
             <div style={{ padding: 28 }}>

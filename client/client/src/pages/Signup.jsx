@@ -56,7 +56,7 @@ export default function Signup() {
         
         console.log('Sending signup request with:', requestBody);
         
-        const response = await fetch('http://localhost:5001/api/customers/register', {
+        const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

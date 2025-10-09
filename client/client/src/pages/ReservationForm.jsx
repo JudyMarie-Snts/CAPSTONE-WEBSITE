@@ -75,7 +75,7 @@ export default function ReservationForm() {
       console.log('Checking availability for:', formattedDate, formattedTime);
       
       // Use the /available endpoint with date and time query parameters
-      const response = await fetch(`http://localhost:5001/api/tables/available?date=${formattedDate}&time=${encodeURIComponent(formattedTime)}`)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/tables/available?date=${formattedDate}&time=${encodeURIComponent(formattedTime)}`)
 
       console.log('Tables API response status:', response.status)
 

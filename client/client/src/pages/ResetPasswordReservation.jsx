@@ -5,7 +5,7 @@ import Footer from '../components/Footer.jsx'
 import reservation from '../assets/reservation.jpg'
 
 export default function ResetPasswordReservation() {
-  const [formValues, setFormValues] = useState({ email: '', currentPassword: '', password: '', confirmPassword: '' })
+  const [formValues, setFormValues] = useState({ email: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [hoverPrimary, setHoverPrimary] = useState(false)
@@ -14,7 +14,6 @@ export default function ResetPasswordReservation() {
   function validate(values) {
     const nextErrors = {}
     if (!values.email.trim()) nextErrors.email = 'Email is required'
-    if (!values.currentPassword) nextErrors.currentPassword = 'Current password is required'
     if (!values.password) nextErrors.password = 'Password is required'
     else if (values.password.length < 6) nextErrors.password = 'At least 6 characters'
     if (!values.confirmPassword) nextErrors.confirmPassword = 'Confirm password is required'
@@ -36,14 +35,13 @@ export default function ResetPasswordReservation() {
       setIsLoading(true)
       
       try {
-        const response = await fetch('http://localhost:5001/api/customers/reset-password', {
+        const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers/reset-password`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             email: formValues.email.trim(),
-            currentPassword: formValues.currentPassword,
             newPassword: formValues.password
           })
         })
@@ -121,25 +119,6 @@ export default function ResetPasswordReservation() {
                   }}
                 />
                 {errors.email && <div style={{ color: '#b91c1c', fontSize: 12, marginBottom: 10 }}>{errors.email}</div>}
-
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Current Password</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={formValues.currentPassword}
-                  onChange={handleChange}
-                  placeholder="Enter current password"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: 10,
-                    border: '1px solid #e2e8f0',
-                    outline: 'none',
-                    marginBottom: 6,
-                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                  }}
-                />
-                {errors.currentPassword && <div style={{ color: '#b91c1c', fontSize: 12, marginBottom: 10 }}>{errors.currentPassword}</div>}
 
                 <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>New Password</label>
                 <input

@@ -70,7 +70,7 @@ export default function FeedbackForm() {
       console.log('Submitting feedback:', feedbackData)
 
       // Submit feedback to API
-      const response = await fetch('http://localhost:5001/api/feedback', {
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

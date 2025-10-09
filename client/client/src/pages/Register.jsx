@@ -56,7 +56,7 @@ export default function Register() {
         
         console.log('Sending registration request with:', requestBody)
         
-        const response = await fetch('http://localhost:5001/api/customers/register', {
+        const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export default function Register() {
           >
             {/* Decorative branded header */}
             <div style={{ background: '#f1f5f9', padding: '14px 20px', borderBottom: '1px solid #e2e8f0' }}>
-              <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.9rem', fontWeight: 900, color: '#0f172a' }}>WELCOME TO SIZUM</h2>
+              <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.9rem', fontWeight: 900, color: '#0f172a' }}>WELCOME TO SISZUM</h2>
             </div>
 
             <div style={{ padding: 28 }}>

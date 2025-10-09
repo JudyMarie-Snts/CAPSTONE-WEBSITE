@@ -55,7 +55,7 @@ export default function ReservationUpload() {
         let customerId = null;
         try {
           // First try to find existing customer
-          const customerResponse = await fetch(`http://localhost:5001/api/customers?email=${encodeURIComponent(reservationData.email)}&limit=1`, {
+          const customerResponse = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers?email=${encodeURIComponent(reservationData.email)}&limit=1`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -84,7 +84,7 @@ export default function ReservationUpload() {
               is_active: 1
             };
 
-            const createCustomerResponse = await fetch('http://localhost:5001/api/customers', {
+            const createCustomerResponse = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export default function ReservationUpload() {
               console.error('Customer creation failed:', customerResult);
               // If customer creation fails due to email already exists, try to find it again
               if (customerResult.message?.includes('Email already exists')) {
-                const retryResponse = await fetch(`http://localhost:5001/api/customers?email=${encodeURIComponent(reservationData.email)}&limit=1`, {
+                const retryResponse = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers?email=${encodeURIComponent(reservationData.email)}&limit=1`, {
                   headers: {
                     'Authorization': `Bearer ${token}`
                   }
@@ -162,7 +162,7 @@ export default function ReservationUpload() {
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
         try {
-          const response = await fetch('http://localhost:5001/api/reservations', {
+          const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -285,17 +285,16 @@ export default function ReservationUpload() {
 
       // Update reservation with payment information
       const updateData = {
-        payment_status: 'completed',
+        payment_status: 'paid',
         payment_amount: 100.00,
-        payment_proof: uploadedFile.name,
         status: 'confirmed'
       };
 
       console.log('Updating reservation with payment data:', updateData);
       console.log('Reservation ID for update:', reservationId);
-      console.log('Update URL:', `http://localhost:5001/api/reservations/${reservationId}`);
+      console.log('Update URL:', `${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations/${reservationId}`);
 
-      const response = await fetch(`http://localhost:5001/api/reservations/${reservationId}`, {
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations/${reservationId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

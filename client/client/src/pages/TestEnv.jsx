@@ -31,7 +31,7 @@ export default function TestEnv() {
       
       <h2>Instructions:</h2>
       <ol>
-        <li>VITE_POS_BASE_URL should be: <code>http://localhost:5001</code></li>
+        <li>VITE_POS_BASE_URL should be: <code>http://localhost:5000</code></li>
         <li>If not set, check .env file exists in client/ folder</li>
         <li>Restart frontend server after creating/modifying .env</li>
         <li>Hard refresh browser (Ctrl+Shift+R)</li>

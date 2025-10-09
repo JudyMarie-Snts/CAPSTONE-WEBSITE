@@ -42,7 +42,7 @@ export default function LoginReservation() {
     
     try {
       console.log('Sending login request...');
-      const response = await fetch('http://localhost:5001/api/customers/login', {
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

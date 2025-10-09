@@ -5,12 +5,10 @@ import Footer from '../components/Footer.jsx'
 import bg from '../assets/bg2.png'
 
 export default function ResetPassword() {
-  const [currentPassword, setCurrentPassword] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [email, setEmail] = useState('')
   const [errors, setErrors] = useState({})
-  const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -19,7 +17,6 @@ export default function ResetPassword() {
   function validate() {
     const next = {}
     if (!email.trim()) next.email = 'Email is required'
-    if (!currentPassword) next.currentPassword = 'Current password is required'
     if (!password) next.password = 'Please enter a new password'
     else if (password.length < 6) next.password = 'At least 6 characters'
     if (!confirmPassword) next.confirm = 'Please retype your new password'
@@ -36,14 +33,13 @@ export default function ResetPassword() {
       setIsLoading(true)
       
       try {
-        const response = await fetch('http://localhost:5001/api/customers/reset-password', {
+        const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/customers/reset-password`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             email: email.trim(),
-            currentPassword: currentPassword,
             newPassword: password
           })
         })
@@ -118,29 +114,6 @@ export default function ResetPassword() {
                   }}
                 />
                 {errors.email && <div style={{ color: '#b91c1c', fontSize: 12, marginBottom: 12, textAlign: 'center' }}>{errors.email}</div>}
-
-                <label style={{ display: 'block', fontWeight: 700, marginBottom: 8, textAlign: 'center', color: '#111827' }}>Current password</label>
-                <div style={{ position: 'relative', marginBottom: 8 }}>
-                  <input
-                    type={showCurrent ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter current password"
-                    style={{
-                      width: '100%',
-                      padding: '12px 44px 12px 14px',
-                      borderRadius: 8,
-                      border: '1px solid #d1d5db',
-                      background: '#fff',
-                      outline: 'none'
-                    }}
-                  />
-                  <button type="button" onClick={() => setShowCurrent(v => !v)}
-                    style={{ position: 'absolute', right: 8, top: 6, height: 32, minWidth: 32, border: 'none', borderRadius: 6, background: 'transparent', cursor: 'pointer', color: '#475569' }}>
-                    {showCurrent ? '🙈' : '👁️'}
-                  </button>
-                </div>
-                {errors.currentPassword && <div style={{ color: '#b91c1c', fontSize: 12, marginBottom: 12, textAlign: 'center' }}>{errors.currentPassword}</div>}
 
                 <label style={{ display: 'block', fontWeight: 700, marginBottom: 8, textAlign: 'center', color: '#111827' }}>Choose new password</label>
                 <div style={{ position: 'relative', marginBottom: 8 }}>

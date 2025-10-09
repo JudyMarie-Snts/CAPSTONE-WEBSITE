@@ -1,8 +1,8 @@
 // Lightweight POS API client. Configure base URL via Vite env: VITE_POS_BASE_URL
 // Updated: 2025-10-06 11:21 - HARDCODED FALLBACK FOR DEVELOPMENT
 
-// HARDCODED fallback to localhost:5001 for development
-const baseUrl = import.meta?.env?.VITE_POS_BASE_URL || 'http://localhost:5001'
+// HARDCODED fallback to localhost:5000 for development
+const baseUrl = import.meta?.env?.VITE_POS_BASE_URL || 'http://localhost:5000'
 
 // Log the configuration on load
 console.log('🔧 POS API Configuration (Updated 11:21 - HARDCODED FALLBACK):')

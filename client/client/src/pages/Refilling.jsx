@@ -115,7 +115,7 @@ export default function Refilling() {
                   <input 
                     value={tableCode} 
                     onChange={(e)=>setTableCode(e.target.value.toUpperCase())} 
-                    placeholder="e.g., TBL001"
+                    placeholder=""
                     disabled={loading}
                     style={{ 
                       width: '100%', 

@@ -10,7 +10,7 @@ export async function testBackendConnection() {
     console.error('❌ VITE_POS_BASE_URL is not set!')
     console.log('Please check:')
     console.log('1. .env file exists in client/ folder')
-    console.log('2. .env contains: VITE_POS_BASE_URL=http://localhost:5001')
+    console.log('2. .env contains: VITE_POS_BASE_URL=http://localhost:5000')
     console.log('3. Frontend server was restarted after creating .env')
     return false
   }

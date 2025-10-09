@@ -249,9 +249,8 @@ router.put('/:id', [
   body('number_of_guests').optional().isInt({ min: 1 }),
   body('reservation_date').optional().isDate(),
   body('reservation_time').optional().matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/),
-  body('payment_status').optional().isIn(['pending', 'completed', 'failed', 'refunded']),
+  body('payment_status').optional().isIn(['pending', 'paid', 'cancelled']),
   body('payment_amount').optional().isFloat({ min: 0 }),
-  body('payment_proof').optional().isLength({ max: 255 }),
   body('status').optional().isIn(['pending', 'confirmed', 'cancelled', 'completed'])
 ], async (req: AuthenticatedRequest, res: express.Response) => {
   try {

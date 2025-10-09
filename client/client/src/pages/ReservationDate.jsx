@@ -21,7 +21,7 @@ export default function ReservationDate() {
   
   const fetchFullyBookedDates = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/api/reservations/fully-booked-dates?year=${currentYear}&month=${currentMonth + 1}`)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations/fully-booked-dates?year=${currentYear}&month=${currentMonth + 1}`)
       
       if (response.ok) {
         const data = await response.json()

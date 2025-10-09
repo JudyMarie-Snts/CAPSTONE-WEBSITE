@@ -360,8 +360,8 @@ router.post('/', authenticateToken, async (req, res) => {
     const query = `
       INSERT INTO customers (
         customer_code, first_name, last_name, email, phone, 
-        date_of_birth, address, city, country, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        date_of_birth, address, city, country, is_active, password_hash
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result]: any = await connection.execute(query, [
@@ -374,7 +374,8 @@ router.post('/', authenticateToken, async (req, res) => {
       address || null,
       city || null,
       country || null,
-      is_active
+      is_active,
+      null // password_hash can be null for customers created through reservations
     ]);
 
     const response: ApiResponse = {
@@ -604,23 +605,14 @@ router.post('/register', async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     
-    // Ensure address column exists
-    try {
-      await pool.execute('ALTER TABLE customers ADD COLUMN address TEXT DEFAULT NULL');
-      console.log('Address column added to customers table');
-    } catch (alterError: any) {
-      // Column might already exist, ignore duplicate column error
-      if (alterError.code !== 'ER_DUP_FIELDNAME') {
-        console.log('Error adding address column:', alterError.message);
-      }
-    }
+    // Address column should already exist in the customers table
     
     // Generate customer code
     const customerCode = `CUST${Date.now()}`;
     
     // Insert new customer
     const insertQuery = `
-      INSERT INTO customers (customer_code, first_name, last_name, email, password, phone, address, is_active, created_at, updated_at)
+      INSERT INTO customers (customer_code, first_name, last_name, email, password_hash, phone, address, is_active, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())
     `;
     
@@ -660,31 +652,27 @@ router.post('/register', async (req, res) => {
 // Reset customer password
 router.post('/reset-password', async (req, res) => {
   try {
-    const { email, currentPassword, newPassword } = req.body;
+    const { email, newPassword } = req.body;
     
     console.log('Password reset request for email:', email);
     
     // Validate input
-    if (!email || !currentPassword || !newPassword) {
+    if (!email || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Email, current password, and new password are required'
+        message: 'Email and new password are required'
       });
     }
     
-    // First, ensure password column exists
-    try {
-      await pool.execute('ALTER TABLE customers ADD COLUMN password VARCHAR(255) DEFAULT NULL');
-      console.log('Password column added to customers table');
-    } catch (alterError: any) {
-      // Column might already exist, ignore duplicate column error
-      if (alterError.code !== 'ER_DUP_FIELDNAME') {
-        console.log('Error adding password column:', alterError.message);
-      }
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
     }
     
-    // Check if customer exists and get current password
-    const checkQuery = 'SELECT id, password, password_hash FROM customers WHERE email = ?';
+    // Check if customer exists
+    const checkQuery = 'SELECT id FROM customers WHERE email = ?';
     const [customerResult]: any = await pool.execute(checkQuery, [email]);
     
     if (customerResult.length === 0) {
@@ -696,30 +684,12 @@ router.post('/reset-password', async (req, res) => {
     
     const customer = customerResult[0];
     
-    // Verify current password
-    const storedPassword = customer.password || customer.password_hash;
-    
-    if (!storedPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'No password set for this account. Please contact support.'
-      });
-    }
-    
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, storedPassword);
-    if (!isCurrentPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Current password is incorrect'
-      });
-    }
-    
     // Hash the new password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
     
     // Update password in database
-    const updateQuery = 'UPDATE customers SET password = ?, updated_at = NOW() WHERE id = ?';
+    const updateQuery = 'UPDATE customers SET password_hash = ?, updated_at = NOW() WHERE id = ?';
     await pool.execute(updateQuery, [hashedPassword, customer.id]);
     
     console.log('Password reset successful for email:', email);
