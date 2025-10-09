@@ -134,6 +134,16 @@ export default function RefillRequest() {
     const minutesParam = params.get('minutes')
     // Priority 2: localStorage key set by admin panel, e.g. refillDurationSec
     const storedDuration = Number(localStorage.getItem('refillDurationSec') || 0)
+    
+    // Debug: Log what's overriding the default
+    console.log('🔍 Timer sources:', { minutesParam, storedDuration, defaultWillBe: 2 * 60 * 60 })
+    
+    // Clear any old global localStorage duration to use new default
+    if (storedDuration && storedDuration !== 2 * 60 * 60) {
+      console.log('🗑️ Clearing old localStorage duration:', storedDuration)
+      localStorage.removeItem('refillDurationSec')
+    }
+    
     const now = Date.now()
 
     // Use table-specific localStorage keys
@@ -145,7 +155,9 @@ export default function RefillRequest() {
     // If no valid deadline or it's in the past, create a new one from params or storage
     if (!deadline || deadline < now) {
       const defaultDuration = 2 * 60 * 60 // 2 hours in seconds
-      const durationSec = minutesParam ? Math.max(60, Number(minutesParam) * 60) : (storedDuration || defaultDuration)
+      // Re-check localStorage after potential cleanup
+      const currentStoredDuration = Number(localStorage.getItem('refillDurationSec') || 0)
+      const durationSec = minutesParam ? Math.max(60, Number(minutesParam) * 60) : (currentStoredDuration || defaultDuration)
       deadline = now + durationSec * 1000
       localStorage.setItem(deadlineKey, String(deadline))
       localStorage.setItem(durationKey, String(durationSec))
