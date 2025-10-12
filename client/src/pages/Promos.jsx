@@ -4,7 +4,7 @@ import Footer from '../components/Footer.jsx';
 import heroImage from '../assets/hero.jpg';
 import promo1Image from '../assets/bday.jpg';
 import promo2Image from '../assets/6.jpg';
-import logo from '../assets/websitelogo.jpg';
+import logo from '../assets/websitelogo2.jpg';
 export default function Promos() {
   return (
     <>

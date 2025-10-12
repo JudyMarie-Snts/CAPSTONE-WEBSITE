@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import image1 from '../assets/11.jpg'
@@ -9,6 +9,51 @@ import image5 from '../assets/13.jpg'
 import cheese from '../assets/cheese.jpg'
 
 export default function UnlimitedMenu() {
+  const [menuItems, setMenuItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Fallback images for menu items
+  const fallbackImages = [image1, image2, image3, image4, image5, cheese]
+
+  useEffect(() => {
+    fetchUnlimitedMenu()
+  }, [])
+
+  const fetchUnlimitedMenu = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/inventory/menu/unlimited`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch menu items')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setMenuItems(data.data || [])
+      } else {
+        throw new Error(data.message || 'Failed to fetch menu items')
+      }
+    } catch (err) {
+      console.error('Error fetching unlimited menu:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getItemImage = (item, index) => {
+    if (item.image_url) {
+      return item.image_url
+    }
+    // Use fallback images in rotation
+    return fallbackImages[index % fallbackImages.length]
+  }
+
+  const formatPrice = (price) => {
+    return `₱${parseFloat(price).toFixed(0)}`
+  }
   return (
     <>
       <Nav />
@@ -21,62 +66,61 @@ export default function UnlimitedMenu() {
           Unlimited Menu brings non-stop Korean BBQ goodness to your table!
         </p>
 
-        <div className="menu-grid">
-          <div className="card">
-            <img src={image1} alt="Set A Unli Pork" />
-            <div className="card-content">
-              <div className="card-title">SET A UNLI PORK</div>
-              <div className="card-desc">All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink</div>
-            </div>
-            <div className="price-tag">₱199</div>
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            Loading unlimited menu items...
           </div>
+        )}
 
-          <div className="card">
-            <img src={image2} alt="Set B Unli Pork & Chicken" />
-            <div className="card-content">
-              <div className="card-title">SET B UNLI PORK & CHICKEN</div>
-              <div className="card-desc">All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink</div>
-            </div>
-            <div className="price-tag">₱249</div>
+        {error && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
+            Unable to load menu items at the moment. Please try again later.
           </div>
+        )}
 
-          <div className="card">
-            <img src={image3} alt="Set C Unli Premium Pork" />
-            <div className="card-content">
-              <div className="card-title">SET C UNLI PREMIUM PORK</div>
-              <div className="card-desc">All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink</div>
-            </div>
-            <div className="price-tag">₱249</div>
+        {!loading && !error && menuItems.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            No unlimited menu items available yet.
           </div>
+        )}
 
-          <div className="card">
-            <img src={image4} alt="Set D Unli Premium Pork & Chicken" />
-            <div className="card-content">
-              <div className="card-title">SET D UNLI PREMIUM PORK & CHICKEN</div>
-              <div className="card-desc">All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink</div>
-            </div>
-            <div className="price-tag">₱299</div>
+        {!loading && !error && menuItems.length > 0 && (
+          <div className="menu-grid">
+            {menuItems.map((item, index) => (
+              <div key={item.id} className="card">
+                <img 
+                  src={getItemImage(item, index)} 
+                  alt={item.name}
+                  onError={(e) => {
+                    e.target.src = fallbackImages[index % fallbackImages.length]
+                  }}
+                />
+                {item.is_premium && (
+                  <div className="premium-badge" style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    background: '#ffd700',
+                    color: '#000',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    PREMIUM
+                  </div>
+                )}
+                <div className="card-content">
+                  <div className="card-title">{item.name}</div>
+                  <div className="card-desc">
+                    {item.description || 'All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink'}
+                  </div>
+                </div>
+                <div className="price-tag">{formatPrice(item.selling_price)}</div>
+              </div>
+            ))}
           </div>
-
-          <div className="card">
-            <img src={image5} alt="Set E Coming Soon" />
-            <div className="coming-soon">AVAILABLE<br/>SOON</div>
-            <div className="card-content">
-              <div className="card-title">SET E UNLI PORK, CHICKEN, & BEEF</div>
-              <div className="card-desc">All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink</div>
-            </div>
-            <div className="price-tag">₱349</div>
-          </div>
-
-          <div className="card">
-            <img src={cheese} alt="Unlimited Cheese" />
-            <div className="card-content">
-              <div className="card-title">UNLIMITED CHEESE</div>
-              <div className="card-desc">Unli Cheese per person</div>
-            </div>
-            <div className="price-tag">₱50</div>
-          </div>
-        </div>
+        )}
       </main>
       <Footer />
     </>
