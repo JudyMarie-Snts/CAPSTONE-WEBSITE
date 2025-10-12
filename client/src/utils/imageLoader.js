@@ -32,7 +32,7 @@ export const ASSETS = {
   FEEDBACK2: new URL('../assets/feedback2.jpg', import.meta.url).href,
   
   // Logo
-  WEBSITE_LOGO: new URL('../assets/websitelogo.jpg', import.meta.url).href,
+  WEBSITE_LOGO: new URL('../assets/websitelogo2.jpg', import.meta.url).href,
   BLACK_LOGO: new URL('../assets/blacklogo.jpg', import.meta.url).href,
   
   // Gallery images

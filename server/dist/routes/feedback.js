@@ -7,6 +7,41 @@ const express_1 = __importDefault(require("express"));
 const database_1 = require("../config/database");
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+// Get public feedback (resolved only, no authentication required)
+router.get('/public', async (req, res) => {
+    try {
+        const query = `
+      SELECT 
+        id,
+        customer_name,
+        feedback_type,
+        rating,
+        feedback_text,
+        admin_response,
+        created_at,
+        responded_at
+      FROM customer_feedback 
+      WHERE status = 'resolved' AND rating IS NOT NULL
+      ORDER BY responded_at DESC, created_at DESC
+      LIMIT 20
+    `;
+        const [feedback] = await database_1.pool.execute(query);
+        const response = {
+            success: true,
+            message: 'Public feedback retrieved successfully',
+            data: feedback
+        };
+        res.json(response);
+    }
+    catch (error) {
+        console.error('Error fetching public feedback:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch public feedback',
+            error: error.message
+        });
+    }
+});
 // Get all feedback (admin only)
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {

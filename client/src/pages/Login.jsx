@@ -99,9 +99,9 @@ export default function Login() {
       
       // Check if there's a redirect path in the URL
       const urlParams = new URLSearchParams(window.location.search);
-      const redirectTo = urlParams.get('redirect') || '/feedback-form';
+      const redirectTo = urlParams.get('redirect') || '/';
       
-      // Redirect to the feedback form page (or the specified redirect path)
+      // Redirect to the specified path (or home page by default)
       navigate(redirectTo, { replace: true });
       
     } catch (error) {

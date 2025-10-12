@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import bg from '../assets/bg2.png'
@@ -9,6 +9,7 @@ export default function Register() {
   const [formValues, setFormValues] = useState({ first_name: '', last_name: '', email: '', password: '', phone: '', address: '', agreed: false })
   const [errors, setErrors] = useState({})
   const [hoverPrimary, setHoverPrimary] = useState(false)
+  const navigate = useNavigate()
 
   function validate(values) {
     const nextErrors = {}
@@ -89,7 +90,18 @@ export default function Register() {
         }
         
         alert('Registration successful! Please login to continue.')
-        setFormValues({ first_name: '', last_name: '', email: '', password: '', agreed: false })
+        setFormValues({ first_name: '', last_name: '', email: '', password: '', phone: '', address: '', agreed: false })
+        
+        // Check if there's a redirect path in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get('redirect');
+        
+        // Redirect to login page with the same redirect parameter
+        if (redirectTo) {
+          navigate(`/login?redirect=${encodeURIComponent(redirectTo)}`, { replace: true });
+        } else {
+          navigate('/login', { replace: true });
+        }
       } catch (error) {
         console.error('Registration error:', {
           message: error.message,

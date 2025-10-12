@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../assets/blacklogo.jpg'
+import logo from '../assets/websitelogo2.jpg'
 export default function Footer() {
   return (
     <footer className="footer">

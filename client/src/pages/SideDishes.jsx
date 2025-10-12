@@ -1,11 +1,55 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import image1 from '../assets/side1.jpg'
 import image2 from '../assets/side2.jpg'
 
-
 export default function SideDishes() {
+  const [menuItems, setMenuItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Fallback images for menu items
+  const fallbackImages = [image1, image2]
+
+  useEffect(() => {
+    fetchSideDishes()
+  }, [])
+
+  const fetchSideDishes = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/inventory/menu/sidedishes`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch side dishes')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setMenuItems(data.data || [])
+      } else {
+        throw new Error(data.message || 'Failed to fetch side dishes')
+      }
+    } catch (err) {
+      console.error('Error fetching side dishes:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getItemImage = (item, index) => {
+    if (item.image_url) {
+      return item.image_url
+    }
+    // Use fallback images in rotation
+    return fallbackImages[index % fallbackImages.length]
+  }
+
+  const formatPrice = (price) => {
+    return `₱${parseFloat(price).toFixed(0)}`
+  }
   return (
     <>
       <Nav />
@@ -18,52 +62,62 @@ export default function SideDishes() {
             Our best-selling side dishes — Kimchi, Cheese, Baby Potatoes, Fishcake, and Egg Roll — served in convenient tubs, perfect to pair with any meal!
           </p>
 
-          <div className="menu-grid">
-            <div className="card">
-              <img src={image1} alt="Cheese on Tub" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
-              <div className="card-content">
-                <div className="card-title">CHEESE ON TUB</div>
-                <div className="card-desc">Cheese</div>
-              </div>
-              <div className="price-tag">₱100</div>
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              Loading side dishes...
             </div>
+          )}
 
-            <div className="card">
-              <img src={image2} alt="Fishcake on Tub" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
-              <div className="card-content">
-                <div className="card-title">FISHCAKE ON TUB</div>
-                <div className="card-desc">Fishcake</div>
-              </div>
-              <div className="price-tag">₱100</div>
+          {error && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
+              Unable to load side dishes at the moment. Please try again later.
             </div>
+          )}
 
-            <div className="card">
-              <img src={image1} alt="Eggroll on Tub" />
-              <div className="card-content">
-                <div className="card-title">EGGROLL ON TUB</div>
-                <div className="card-desc">Eggroll</div>
-              </div>
-              <div className="price-tag">₱100</div>
+          {!loading && !error && menuItems.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              No side dishes available yet.
             </div>
+          )}
 
-            <div className="card">
-              <img src={image2} alt="Baby Potatoes on Tub" />
-              <div className="card-content">
-                <div className="card-title">BABY POTATOES ON TUB</div>
-                <div className="card-desc">Baby Potatoes</div>
-              </div>
-              <div className="price-tag">₱100</div>
+          {!loading && !error && menuItems.length > 0 && (
+            <div className="menu-grid">
+              {menuItems.map((item, index) => (
+                <div key={item.id} className="card" style={{ position: 'relative' }}>
+                  <img 
+                    src={getItemImage(item, index)} 
+                    alt={item.name}
+                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                    onError={(e) => {
+                      e.target.src = fallbackImages[index % fallbackImages.length]
+                    }}
+                  />
+                  {item.is_premium && (
+                    <div className="premium-badge" style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      background: '#ffd700',
+                      color: '#000',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}>
+                      PREMIUM
+                    </div>
+                  )}
+                  <div className="card-content">
+                    <div className="card-title">{item.name}</div>
+                    <div className="card-desc">
+                      {item.description || 'Delicious side dish served in convenient tub'}
+                    </div>
+                  </div>
+                  <div className="price-tag">{formatPrice(item.selling_price)}</div>
+                </div>
+              ))}
             </div>
-
-            <div className="card">
-              <img src={image1} alt="Kimchi on Tub" />
-              <div className="card-content">
-                <div className="card-title">KIMCHI ON TUB</div>
-                <div className="card-desc">Kimchi</div>
-              </div>
-              <div className="price-tag">₱100</div>
-            </div>
-          </div>
+          )}
         </header>
       </main>
       <Footer />

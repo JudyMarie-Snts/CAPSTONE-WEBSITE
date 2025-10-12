@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import image1 from '../assets/SAMG PORK ON CUP.jpg'
@@ -10,6 +10,51 @@ import image6 from '../assets/CHICKEN POPPERS.JPG'
 import image7 from '../assets/cheese.jpg'
 
 export default function AlaCarteMenu() {
+  const [menuItems, setMenuItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Fallback images for menu items
+  const fallbackImages = [image1, image2, image3, image4, image5, image6, image7]
+
+  useEffect(() => {
+    fetchAlaCarteMenu()
+  }, [])
+
+  const fetchAlaCarteMenu = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/inventory/menu/alacarte`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch menu items')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setMenuItems(data.data || [])
+      } else {
+        throw new Error(data.message || 'Failed to fetch menu items')
+      }
+    } catch (err) {
+      console.error('Error fetching ala carte menu:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getItemImage = (item, index) => {
+    if (item.image_url) {
+      return item.image_url
+    }
+    // Use fallback images in rotation
+    return fallbackImages[index % fallbackImages.length]
+  }
+
+  const formatPrice = (price) => {
+    return `₱${parseFloat(price).toFixed(0)}`
+  }
   return (
     <>
       <Nav />
@@ -22,70 +67,61 @@ export default function AlaCarteMenu() {
           Korean favorites in perfect portions for every craving!
         </p>
 
-        <div className="menu-grid" style={{ display: 'flex', justifyContent: 'center', gap: '40px', padding: '20px 10px 60px 10px', flexWrap: 'wrap' }}>
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image1} alt="Samg Pork on Cup" />
-            <div className="card-content">
-              <div className="card-title">SAMG PORK ON CUP</div>
-              <div className="card-desc">All comes with Lettuce, Eggroll, Fishcake, Kimchi, Cheese, and Rice</div>
-            </div>
-            <div className="price-tag">₱75</div>
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            Loading ala carte menu items...
           </div>
+        )}
 
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image2} alt="Samg Chicken on Cup" />
-            <div className="card-content">
-              <div className="card-title">SAMG CHICKEN ON CUP</div>
-              <div className="card-desc">All comes with Lettuce, Eggroll, Fishcake, Kimchi, Cheese, and Rice</div>
-            </div>
-            <div className="price-tag">₱75</div>
+        {error && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
+            Unable to load menu items at the moment. Please try again later.
           </div>
+        )}
 
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image3} alt="Samg Beef on Cup" />
-            <div className="card-content">
-              <div className="card-title">SAMG BEEF ON CUP</div>
-              <div className="card-desc">All comes with Lettuce, Baby Potatoes, Eggroll, Cheese, Fishcake, and Rice</div>
-            </div>
-            <div className="price-tag">₱90</div>
+        {!loading && !error && menuItems.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            No ala carte menu items available yet.
           </div>
+        )}
 
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image4} alt="Chicken Poppers on Cup" />
-            <div className="card-content">
-              <div className="card-title">CHICKEN POPPERS ON CUP</div>
-              <div className="card-desc">All comes with Lettuce, Eggroll, Baby Potatoes, Kimchi, Cheese, and Rice</div>
-            </div>
-            <div className="price-tag">₱75</div>
+        {!loading && !error && menuItems.length > 0 && (
+          <div className="menu-grid" style={{ display: 'flex', justifyContent: 'center', gap: '40px', padding: '20px 10px 60px 10px', flexWrap: 'wrap' }}>
+            {menuItems.map((item, index) => (
+              <div key={item.id} className="card" style={{ width: '320px', position: 'relative' }}>
+                <img 
+                  src={getItemImage(item, index)} 
+                  alt={item.name}
+                  onError={(e) => {
+                    e.target.src = fallbackImages[index % fallbackImages.length]
+                  }}
+                />
+                {item.is_premium && (
+                  <div className="premium-badge" style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    background: '#ffd700',
+                    color: '#000',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    PREMIUM
+                  </div>
+                )}
+                <div className="card-content">
+                  <div className="card-title">{item.name}</div>
+                  <div className="card-desc">
+                    {item.description || 'Delicious Korean-style dish served with premium ingredients'}
+                  </div>
+                </div>
+                <div className="price-tag">{formatPrice(item.selling_price)}</div>
+              </div>
+            ))}
           </div>
-
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image5} alt="Korean Meat on Cup" />
-            <div className="card-content">
-              <div className="card-title">KOREAN MEAT ON CUP</div>
-              <div className="card-desc">All comes with Lettuce, Eggroll, Baby Potatoes, Kimchi, Cheese, and Rice</div>
-            </div>
-            <div className="price-tag">₱75</div>
-          </div>
-
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image6} alt="Chicken Poppers" />
-            <div className="card-content">
-              <div className="card-title">CHICKEN POPPERS</div>
-              <div className="card-desc">All comes with Cheese</div>
-            </div>
-            <div className="price-tag">₱100</div>
-          </div>
-
-          <div className="card" style={{ width: '320px' }}>
-            <img src={image7} alt="Cheese" />
-            <div className="card-content">
-              <div className="card-title">CHEESE</div>
-              <div className="card-desc">1 serve of Cheese</div>
-            </div>
-            <div className="price-tag">₱50</div>
-          </div>
-        </div>
+        )}
       </main>
       <Footer />
     </>

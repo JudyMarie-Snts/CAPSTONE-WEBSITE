@@ -12,7 +12,7 @@ export const checkImageExists = (imagePath) => {
 export const fallbackImages = {
   food: '/src/assets/1.jpg', // Generic food image
   background: '/src/assets/bg.jpg', // Generic background
-  logo: '/src/assets/websitelogo.jpg', // Logo fallback
+  logo: '/src/assets/websitelogo2.jpg', // Logo fallback
   reservation: '/src/assets/reservation.jpg' // Reservation background
 };
 

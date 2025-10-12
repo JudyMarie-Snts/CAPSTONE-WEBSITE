@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import websiteLogo from '../assets/websitelogo.jpg'
+import websiteLogo from '../assets/websitelogo2.jpg'
 
 export default function Nav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
