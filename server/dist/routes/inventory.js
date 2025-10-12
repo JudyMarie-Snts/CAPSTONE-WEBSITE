@@ -7,6 +7,54 @@ const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middleware/auth");
 const database_1 = require("../config/database");
 const router = express_1.default.Router();
+// Get public menu items by category (no authentication required)
+router.get('/menu/:category', async (req, res) => {
+    try {
+        const { category } = req.params;
+        let whereClause = '';
+        // Map category names to database conditions
+        switch (category.toLowerCase()) {
+            case 'unlimited':
+                whereClause = "WHERE mc.name = 'Unlimited Menu' AND mi.availability = 'available'";
+                break;
+            case 'alacarte':
+                whereClause = "WHERE mc.name = 'Ala Carte Menu' AND mi.availability = 'available'";
+                break;
+            case 'sidedishes':
+                whereClause = "WHERE mc.name = 'Side Dishes' AND mi.availability = 'available'";
+                break;
+            default:
+                whereClause = "WHERE mi.availability = 'available'";
+        }
+        const [rows] = await database_1.pool.execute(`
+      SELECT 
+        mi.id,
+        mi.product_code,
+        mi.name,
+        mi.description,
+        mi.selling_price,
+        mi.image_url,
+        mi.is_unlimited,
+        mi.is_premium,
+        mc.name as category_name
+      FROM menu_items mi
+      LEFT JOIN menu_categories mc ON mi.category_id = mc.id
+      ${whereClause}
+      ORDER BY mi.name
+    `);
+        res.json({
+            success: true,
+            data: rows
+        });
+    }
+    catch (error) {
+        console.error('Error fetching menu items:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch menu items'
+        });
+    }
+});
 // Get all inventory items
 router.get('/items', auth_1.authenticateToken, async (req, res) => {
     try {
