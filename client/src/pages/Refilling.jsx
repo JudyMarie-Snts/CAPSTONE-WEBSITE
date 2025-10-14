@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { validateTableCode } from '../api/pos.js'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
@@ -148,7 +148,7 @@ export default function Refilling() {
                 >
                   {loading ? 'Validating...' : 'Go to Refill Request'}
                 </button>
-                <a href="/" style={{ display: 'inline-block', background: '#dc2626', color: '#fff', textDecoration: 'none', padding: '12px 16px', borderRadius: 9999, fontWeight: 900 }}>Back to Home Page</a>
+                <Link to="/" style={{ display: 'inline-block', background: '#dc2626', color: '#fff', textDecoration: 'none', padding: '12px 16px', borderRadius: 9999, fontWeight: 900 }}>Back to Home Page</Link>
               </div>
             </form>
           </div>
