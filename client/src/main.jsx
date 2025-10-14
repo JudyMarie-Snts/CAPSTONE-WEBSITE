@@ -30,6 +30,7 @@ import ReservationUpload from './pages/ReservationUpload.jsx'
 import ReservationConfirmed from './pages/ReservationConfirmed.jsx'
 import ReservationPending from './pages/ReservationPending.jsx'
 import TestEnv from './pages/TestEnv.jsx'
+import NotFound from './pages/NotFound.jsx'
 import './styles.css'
 
 const router = createBrowserRouter([
@@ -68,6 +69,7 @@ const router = createBrowserRouter([
   { path: '/reservationPending', element: <ReservationPending /> },
   { path: '/timesup', element: <TimesUp /> },
   { path: '/test-env', element: <TestEnv /> },
+  { path: '*', element: <NotFound /> },
 ])
 
 const root = createRoot(document.getElementById('root'))
