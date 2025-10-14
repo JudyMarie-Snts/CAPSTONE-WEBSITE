@@ -226,17 +226,102 @@ nav ul li.has-dropdown:hover .dropdown { display: block; }
 
 .gallery { padding: 60px 80px; background-color: #fff; }
 .gallery h2 { text-align: center; font-size: 2rem; font-weight: bold; margin-bottom: 40px; color: #333; }
-.gallery-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 20px; max-width: 1200px; margin: 0 auto; }
-.gallery-item { border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-.gallery-item:hover { transform: scale(1.02); }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-.gallery-item.large { grid-column: span 1; grid-row: span 1; height: 250px; }
-.gallery-item.medium { grid-column: span 1; grid-row: span 1; height: 200px; }
-.gallery-item.top-left { grid-column: 1; grid-row: 1; }
-.gallery-item.top-center { grid-column: 2; grid-row: 1; }
-.gallery-item.top-right { grid-column: 3; grid-row: 1; }
-.gallery-item.bottom-left { grid-column: 1; grid-row: 2; }
-.gallery-item.bottom-right { grid-column: 3; grid-row: 2; }
+/* Gallery Carousel Styles */
+.gallery-carousel {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  height: 400px;
+  position: relative;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Navigation Buttons - Removed as requested */
+/* .carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.carousel-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-btn-prev {
+  left: 20px;
+}
+
+.carousel-btn-next {
+  right: 20px;
+}
+
+.carousel-btn svg {
+  color: #333;
+} */
+
+/* Indicators */
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-indicator:hover {
+  background: #bbb;
+  transform: scale(1.2);
+}
+
+.carousel-indicator.active {
+  background: #d32f2f;
+  transform: scale(1.3);
+}
 
 .location { padding: 60px 80px; background-color: #fff; }
 .location h2 { color: #d32f2f; font-size: 2rem; font-weight: bold; margin-bottom: 10px; text-align: left; }
@@ -1028,24 +1113,31 @@ nav ul li.has-dropdown:hover .dropdown { display: block; }
     font-size: 14px;
   }
   
-  /* Gallery */
+  /* Gallery Carousel - Navigation buttons removed */
   .gallery {
     padding: 40px 20px;
   }
   
-  .gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
+  .carousel-slide {
+    height: 300px;
   }
   
-  .gallery-item {
-    height: 200px;
+  /* .carousel-btn {
+    width: 40px;
+    height: 40px;
   }
   
-  .gallery-item.large,
-  .gallery-item.medium {
-    grid-column: 1;
-    grid-row: auto;
+  .carousel-btn-prev {
+    left: 10px;
+  }
+  
+  .carousel-btn-next {
+    right: 10px;
+  } */
+  
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
   }
   
   /* Location */
@@ -1241,13 +1333,31 @@ nav ul li.has-dropdown:hover .dropdown { display: block; }
     font-size: 12px;
   }
   
-  /* Gallery */
+  /* Gallery Carousel - Navigation buttons removed */
   .gallery {
     padding: 30px 15px;
   }
   
-  .gallery-item {
-    height: 180px;
+  .carousel-slide {
+    height: 250px;
+  }
+  
+  /* .carousel-btn {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .carousel-btn-prev {
+    left: 5px;
+  }
+  
+  .carousel-btn-next {
+    right: 5px;
+  } */
+  
+  .carousel-indicator {
+    width: 8px;
+    height: 8px;
   }
   
   /* Menu */

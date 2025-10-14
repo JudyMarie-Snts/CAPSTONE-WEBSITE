@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav.jsx';
 import Footer from '../components/Footer.jsx';
 import heroImage from '../assets/hero.jpg';
@@ -6,6 +7,12 @@ import promo1Image from '../assets/bday.jpg';
 import promo2Image from '../assets/6.jpg';
 import logo from '../assets/websitelogo2.jpg';
 export default function Promos() {
+  const navigate = useNavigate();
+
+  const handleClaimTable = () => {
+    navigate('/reservation');
+  };
+
   return (
     <>
       <Nav />
@@ -67,7 +74,7 @@ export default function Promos() {
           <div className="special-promo">
             <h2>WHAT ARE YOU WAITING FOR?</h2>
             <p>Don't miss out on these amazing deals! Book your table now and experience the best K-BBQ in town with incredible savings.</p>
-            <a href="#" className="cta-button">Claim Your Table</a>
+            <button onClick={handleClaimTable} className="cta-button">Claim Your Table</button>
           </div>
 
           {/* Load More Section */}
