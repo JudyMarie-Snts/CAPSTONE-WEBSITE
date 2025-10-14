@@ -133,11 +133,25 @@ io.on('connection', (socket) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
+// Serve client build (SPA) in production and add fallback for client-side routes
+// Resolve client/dist relative to compiled server (dist/index.js)
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+
+// Serve static assets
+app.use(express.static(clientDistPath));
+
+// SPA fallback: for any non-API route, serve index.html so React Router can handle it
+app.get(/^(?!\/api).*/, (req, res, next) => {
+  // If the request looks like a file (has an extension) and doesn't exist, continue to 404
+  if (path.extname(req.path)) return next();
+  return res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+
+// 404 handler for anything else (e.g., missing files or unknown API routes)
 app.use('*', (req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   });
 });
 

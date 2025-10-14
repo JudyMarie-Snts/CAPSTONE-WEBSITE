@@ -292,7 +292,8 @@ export default function RefillRequest() {
           console.log('✅ Refill request created with ID:', refillId)
         }
         
-        window.location.href = `/refill-request-submitted${refillId ? `?id=${encodeURIComponent(refillId)}` : ''}`
+  // Use client-side navigation to avoid server 404s on deployed SPA
+  navigate(`/refill-request-submitted${refillId ? `?id=${encodeURIComponent(refillId)}` : ''}`)
         return
       } else {
         const errorMsg = res?.data?.message || res?.error || 'Failed to submit refill request. Please try again.'
