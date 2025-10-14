@@ -36,6 +36,12 @@ export interface Customer {
   updated_at: Date;
 }
 
+export type UserRole = 'super_admin' | 'admin' | 'manager' | 'customer';
+
+export type AuthenticatedUser =
+  | (Admin & { role: Exclude<UserRole, 'customer'> })
+  | (Partial<Customer> & { id: number; role: 'customer' });
+
 // Restaurant Management Types
 export interface RestaurantTable {
   id: number;
@@ -111,6 +117,15 @@ export interface Reservation {
   notes?: string;
   created_at: Date;
   updated_at: Date;
+  // New payment proof fields
+  reservation_fee_amount?: number;
+  payment_proof_status?: 'not_uploaded' | 'pending_review' | 'approved' | 'rejected';
+  payment_proof_url?: string;
+  payment_proof_public_id?: string;
+  payment_proof_uploaded_at?: Date;
+  payment_verified_by?: number;
+  payment_verified_at?: Date;
+  payment_rejection_reason?: string;
 }
 
 // Order Management Types
@@ -303,5 +318,5 @@ export interface SocketEvents {
 
 // Express Request Extensions
 export interface AuthenticatedRequest extends Request {
-  user?: Admin;
+  user?: AuthenticatedUser;
 }
