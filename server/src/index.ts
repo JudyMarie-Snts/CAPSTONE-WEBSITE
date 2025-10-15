@@ -17,6 +17,7 @@ import customersRoutes from './routes/customers';
 import ordersRoutes from './routes/orders';
 import feedbackRoutes from './routes/feedback';
 import refillsRoutes from './routes/refills';
+import timersRoutes from './routes/timers';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -76,6 +77,7 @@ app.use('/api/customers', customersRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/refill-requests', refillsRoutes);
+app.use('/api/timers', timersRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
