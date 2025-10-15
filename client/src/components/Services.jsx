@@ -28,7 +28,7 @@ export default function Services() {
               <div style={{ width: 44, height: 44, margin: '0 auto 8px', borderRadius: '50%', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span role="img" aria-label="time" style={{ fontSize: 18 }}>⏰</span>
               </div>
-              <div style={{ fontSize: 12 }}>Opened 9:00 pm</div>
+              <div style={{ fontSize: 12 }}>Opened 5:00 pm</div>
             </div>
 
             <div style={{ background: '#111', borderRadius: 8, padding: '14px 16px', width: 120, textAlign: 'center' }}>

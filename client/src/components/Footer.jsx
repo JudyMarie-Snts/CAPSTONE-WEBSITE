@@ -1,5 +1,7 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import logo from '../assets/websitelogo2.jpg'
+
 export default function Footer() {
   return (
     <footer className="footer">
@@ -13,32 +15,24 @@ export default function Footer() {
             shared with the people who matter most.
           </p>
           <div className="socials">
-            <a href="#" aria-label="Instagram">IG</a>
-            <a href="#" aria-label="Facebook">f</a>
-            <a href="#" aria-label="Email">@</a>
-            <a href="#" aria-label="SMS">✉</a>
+            <a href="https://www.instagram.com/siszumgyupsal?igsh=OXpkcDFmbm9jaWtt" target="_blank" rel="noopener noreferrer" aria-label="Instagram">IG</a>
+            <a href="https://facebook.com/siszumgyupsal" target="_blank" rel="noopener noreferrer" aria-label="Facebook">f</a>
+            <a href="mailto:siszumgyupsal@gmail.com" aria-label="Email">@</a>
+            <a href="sms:09392669808" aria-label="SMS">✉</a>
           </div>
         </div>
 
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Menu</a></li>
-            <li><a href="#">Reservation</a></li>
-            <li><a href="#">Refilling</a></li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/featuremenu">Menu</Link></li>
+            <li><Link to="/reservation">Reservation</Link></li>
+            <li><Link to="/refilling">Refilling</Link></li>
           </ul>
         </div>
 
-        <div>
-          <h4>Quick Links</h4>
-          <ul>
-            <li><a href="#">FAQ'S</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms &amp; Conditions</a></li>
-            <li><a href="#">Support</a></li>
-          </ul>
-        </div>
+        <div></div>
 
         <div>
           <h4>Contact Us</h4>

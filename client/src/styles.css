@@ -49,6 +49,58 @@ nav .logo img {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+nav .logo {
+  pointer-events: auto;
+  cursor: default !important;
+  display: inline-block !important;
+}
+nav .logo img {
+  cursor: default !important;
+  display: block !important;
+}
+nav .logo:hover,
+nav .logo:focus,
+nav .logo:active,
+nav .logo:visited,
+nav .logo:link {
+  color: inherit !important;
+  text-decoration: none !important;
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  transform: none !important;
+  transition: none !important;
+  cursor: default !important;
+}
+nav .logo:hover img,
+nav .logo:focus img,
+nav .logo:active img,
+nav .logo:visited img,
+nav .logo:link img {
+  transform: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  border-radius: 8px !important;
+  transition: none !important;
+  cursor: default !important;
+}
+
+/* Override any global link styles for logo */
+nav a.logo,
+nav a.logo:hover,
+nav a.logo:focus,
+nav a.logo:active,
+nav a.logo:visited {
+  color: inherit !important;
+  text-decoration: none !important;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  cursor: default !important;
+}
 nav ul { display: flex; list-style: none; }
 nav ul li { margin: 0 15px; }
 nav ul li a { text-decoration: none; color: #000; font-weight: bold; transition: 0.3s; }

@@ -58,69 +58,72 @@ export default function UnlimitedMenu() {
     <>
       <Nav />
       <main style={{ paddingTop: 90 }}>
-        <h1 style={{ textAlign: 'center', fontSize: '36px', color: '#d60000', marginBottom: '10px' }}>
-          UNLIMITED MENU 
-        </h1>
-        <p style={{ textAlign: 'center', fontSize: '18px', maxWidth: '700px', margin: '0 auto 40px' }}>
-          From sizzling pork sets to unlimited rice, sides, and drinks — SIZSUMgyupsal's
-          Unlimited Menu brings non-stop Korean BBQ goodness to your table!
-        </p>
+        <header style={{ padding: '110px 20px 10px 20px' }}>
+          <h1 style={{ textAlign: 'center', fontSize: '36px', color: '#d60000', marginBottom: '10px' }}>
+            UNLIMITED MENU 
+          </h1>
+          <p style={{ textAlign: 'center', fontSize: '18px', maxWidth: '700px', margin: '0 auto 40px' }}>
+            From sizzling pork sets to unlimited rice, sides, and drinks — SIZSUMgyupsal's
+            Unlimited Menu brings non-stop Korean BBQ goodness to your table!
+          </p>
 
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            Loading unlimited menu items...
-          </div>
-        )}
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              Loading unlimited menu items...
+            </div>
+          )}
 
-        {error && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
-            Unable to load menu items at the moment. Please try again later.
-          </div>
-        )}
+          {error && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
+              Unable to load menu items at the moment. Please try again later.
+            </div>
+          )}
 
-        {!loading && !error && menuItems.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            No unlimited menu items available yet.
-          </div>
-        )}
+          {!loading && !error && menuItems.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              No unlimited menu items available yet.
+            </div>
+          )}
 
-        {!loading && !error && menuItems.length > 0 && (
-          <div className="menu-grid">
-            {menuItems.map((item, index) => (
-              <div key={item.id} className="card">
-                <img 
-                  src={getItemImage(item, index)} 
-                  alt={item.name}
-                  onError={(e) => {
-                    e.target.src = fallbackImages[index % fallbackImages.length]
-                  }}
-                />
-                {item.is_premium && (
-                  <div className="premium-badge" style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    background: '#ffd700',
-                    color: '#000',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}>
-                    PREMIUM
+          {!loading && !error && menuItems.length > 0 && (
+            <div className="menu-grid">
+              {menuItems.map((item, index) => (
+                <div key={item.id} className="card" style={{ position: 'relative' }}>
+                  <img 
+                    src={getItemImage(item, index)} 
+                    alt={item.name}
+                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                    onError={(e) => {
+                      e.target.src = fallbackImages[index % fallbackImages.length]
+                    }}
+                  />
+                  {item.is_premium && (
+                    <div className="premium-badge" style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      background: '#ffd700',
+                      color: '#000',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}>
+                      PREMIUM
+                    </div>
+                  )}
+                  <div className="card-content">
+                    <div className="card-title">{item.name}</div>
+                    <div className="card-desc">
+                      {item.description || 'All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink'}
+                    </div>
                   </div>
-                )}
-                <div className="card-content">
-                  <div className="card-title">{item.name}</div>
-                  <div className="card-desc">
-                    {item.description || 'All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink'}
-                  </div>
+                  <div className="price-tag">{formatPrice(item.selling_price)}</div>
                 </div>
-                <div className="price-tag">{formatPrice(item.selling_price)}</div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </header>
       </main>
       <Footer />
     </>

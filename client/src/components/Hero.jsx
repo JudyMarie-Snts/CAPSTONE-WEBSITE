@@ -40,7 +40,17 @@ export default function Hero() {
       }}></div>
       <div className="hero-content" style={{ textAlign: 'center', position: 'relative', zIndex: 3 }}>
         <h1 style={{ lineHeight: 1.1 }}>{'YOUR ULTIMATE KOREAN BBQ EXPERIENCE STARTS HERE!'}</h1>
-        <button style={{ cursor: 'pointer' }}>Read more</button>
+        <button 
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            document.getElementById('our-story')?.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }}
+        >
+          Read more
+        </button>
       </div>
     </section>
   )
