@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import { executeQuery } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
-import { Admin, LoginRequest, LoginResponse, ApiResponse, AuthenticatedRequest } from '../types';
+import { Admin, LoginRequest, LoginResponse, ApiResponse, AuthenticatedRequest, AuthenticatedUser } from '../types';
 
 const router = express.Router();
 
@@ -87,7 +87,7 @@ router.post('/login', [
 // Get current user
 router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res: express.Response) => {
   try {
-    const response: ApiResponse<Admin> = {
+    const response: ApiResponse<AuthenticatedUser> = {
       success: true,
       message: 'User retrieved successfully',
       data: req.user

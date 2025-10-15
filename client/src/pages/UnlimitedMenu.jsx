@@ -95,7 +95,7 @@ export default function UnlimitedMenu() {
                     e.target.src = fallbackImages[index % fallbackImages.length]
                   }}
                 />
-                {item.is_premium && (
+                {(item.is_premium === true || item.is_premium === 1) && (
                   <div className="premium-badge" style={{
                     position: 'absolute',
                     top: '10px',
