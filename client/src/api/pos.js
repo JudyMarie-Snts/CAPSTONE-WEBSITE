@@ -103,6 +103,52 @@ export async function updateRefillRequestStatus(refillId, status, options = {}) 
   }
 }
 
+// Customer Timer API functions
+export async function getCustomerTimer(tableCode, options = {}) {
+  if (!baseUrl) return { ok: false, skipped: true, error: 'POS base URL not configured' }
+  const apiKey = options.apiKey || import.meta?.env?.VITE_POS_API_KEY
+  try {
+    const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/timers/table/${encodeURIComponent(tableCode)}`, {
+      headers: getHeaders(apiKey),
+    })
+    const data = await res.json().catch(() => null)
+    return { ok: res.ok, status: res.status, data }
+  } catch (error) {
+    return { ok: false, error: error?.message || 'Network error' }
+  }
+}
+
+export async function createCustomerTimer(payload, options = {}) {
+  if (!baseUrl) return { ok: false, skipped: true, error: 'POS base URL not configured' }
+  const apiKey = options.apiKey || import.meta?.env?.VITE_POS_API_KEY
+  try {
+    const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/timers`, {
+      method: 'POST',
+      headers: getHeaders(apiKey),
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json().catch(() => null)
+    return { ok: res.ok, status: res.status, data }
+  } catch (error) {
+    return { ok: false, error: error?.message || 'Network error' }
+  }
+}
+
+export async function stopCustomerTimer(tableCode, options = {}) {
+  if (!baseUrl) return { ok: false, skipped: true, error: 'POS base URL not configured' }
+  const apiKey = options.apiKey || import.meta?.env?.VITE_POS_API_KEY
+  try {
+    const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/timers/table/${encodeURIComponent(tableCode)}/stop`, {
+      method: 'PATCH',
+      headers: getHeaders(apiKey),
+    })
+    const data = await res.json().catch(() => null)
+    return { ok: res.ok, status: res.status, data }
+  } catch (error) {
+    return { ok: false, error: error?.message || 'Network error' }
+  }
+}
+
 export function isPosConfigured() {
   return Boolean(baseUrl)
 }
