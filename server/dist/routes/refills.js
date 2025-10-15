@@ -105,6 +105,9 @@ router.post('/', async (req, res) => {
         const [result] = await database_1.pool.execute(`INSERT INTO refill_requests 
         (table_code, table_id, customer_id, status, request_type, notes, requested_at)
       VALUES (?, ?, ?, 'pending', ?, ?, NOW())`, [table_code, table_id, customer_id || null, request_type || null, notes || null]);
+        // Note: Previously, creating a refill request would create/update a row in
+        // the customer_timers table. Per current requirements, this linkage has
+        // been removed so that refills no longer touch customer_timers.
         // Fetch the created refill request
         const [newRequest] = await database_1.pool.execute(`SELECT 
         rr.*,
@@ -172,6 +175,9 @@ router.patch('/:id/status', async (req, res) => {
         }
         updateParams.push(id);
         await database_1.pool.execute(`UPDATE refill_requests SET ${updateFields.join(', ')} WHERE id = ?`, updateParams);
+        // Note: Previously, status changes for refill requests also started or
+        // stopped related customer_timers. This behavior has been removed to fully
+        // decouple refills from customer_timers.
         // Fetch updated refill request
         const [updatedRows] = await database_1.pool.execute(`SELECT 
         rr.*,

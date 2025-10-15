@@ -15,7 +15,8 @@ router.get('/', async (req, res) => {
         ct.*,
         rt.table_number,
         rt.table_code,
-        o.order_code
+        o.order_code,
+        TIMESTAMPDIFF(SECOND, ct.start_time, COALESCE(ct.end_time, NOW())) as current_elapsed_seconds
       FROM customer_timers ct
       LEFT JOIN restaurant_tables rt ON ct.table_id = rt.id
       LEFT JOIN orders o ON ct.order_id = o.id
@@ -223,27 +224,45 @@ router.patch('/:id', async (req, res) => {
       });
     }
     
-    const updateFields: string[] = [];
-    const updateParams: any[] = [];
+  const updateFields: string[] = [];
+  const updateParams: any[] = [];
     
     if (is_active !== undefined) {
       updateFields.push('is_active = ?');
       updateParams.push(is_active ? 1 : 0);
-      
+
       // If deactivating, set end_time if not provided
       if (!is_active && !end_time) {
         updateFields.push('end_time = NOW()');
       }
     }
-    
+
     if (end_time !== undefined) {
       updateFields.push('end_time = ?');
       updateParams.push(end_time);
     }
-    
+
     if (elapsed_seconds !== undefined) {
+      // Explicit override if provided in payload
       updateFields.push('elapsed_seconds = ?');
       updateParams.push(elapsed_seconds);
+    } else {
+      // If the request is turning the timer inactive or providing an end_time,
+      // compute and set the final elapsed_seconds as well for consistency
+      const isCurrentlyActive = existingRows[0].is_active === 1;
+      const deactivatingNow = is_active !== undefined ? (!is_active && isCurrentlyActive) : false;
+      const finalizing = deactivatingNow || end_time !== undefined;
+
+      if (finalizing) {
+        if (end_time !== undefined) {
+          // Use provided end_time for precise calculation
+          updateFields.push('elapsed_seconds = TIMESTAMPDIFF(SECOND, start_time, ?)');
+          updateParams.push(end_time);
+        } else {
+          // end_time is NOW() (set above) so compute against NOW()
+          updateFields.push('elapsed_seconds = TIMESTAMPDIFF(SECOND, start_time, NOW())');
+        }
+      }
     }
     
     updateFields.push('updated_at = NOW()');

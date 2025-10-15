@@ -131,51 +131,9 @@ router.post('/', async (req, res) => {
       VALUES (?, ?, ?, 'pending', ?, ?, NOW())`,
       [table_code, table_id, customer_id || null, request_type || null, notes || null]
     );
-
-    // Create or update customer timer when refill request is created
-    try {
-      // Get customer name if customer_id is provided
-      let customerName = 'Walk-in Customer';
-      if (customer_id) {
-        const [customerRows] = await pool.execute<RowDataPacket[]>(
-          'SELECT first_name, last_name FROM customers WHERE id = ?',
-          [customer_id]
-        );
-        if (customerRows.length > 0) {
-          const customer = customerRows[0];
-          customerName = `${customer.first_name} ${customer.last_name}`.trim();
-        }
-      }
-
-      // Check if there's already an active timer for this table
-      const [existingTimerRows] = await pool.execute<RowDataPacket[]>(
-        'SELECT id FROM customer_timers WHERE table_id = ? AND is_active = 1',
-        [table_id]
-      );
-
-      if (existingTimerRows.length > 0) {
-        // Update existing timer - reset start time for refill
-        await pool.execute(
-          `UPDATE customer_timers 
-           SET customer_name = ?, start_time = NOW(), updated_at = NOW()
-           WHERE id = ?`,
-          [customerName, existingTimerRows[0].id]
-        );
-        console.log('✅ Updated existing customer timer for refill request');
-      } else {
-        // Create new timer
-        await pool.execute(
-          `INSERT INTO customer_timers 
-            (customer_name, table_id, start_time, is_active, created_at, updated_at)
-          VALUES (?, ?, NOW(), 1, NOW(), NOW())`,
-          [customerName, table_id]
-        );
-        console.log('✅ Created new customer timer for refill request');
-      }
-    } catch (timerError) {
-      console.error('Error managing customer timer:', timerError);
-      // Don't fail the refill request if timer creation fails
-    }
+    // Note: Previously, creating a refill request would create/update a row in
+    // the customer_timers table. Per current requirements, this linkage has
+    // been removed so that refills no longer touch customer_timers.
     
     // Fetch the created refill request
     const [newRequest] = await pool.execute<RowDataPacket[]>(
@@ -264,57 +222,9 @@ router.patch('/:id/status', async (req, res) => {
       `UPDATE refill_requests SET ${updateFields.join(', ')} WHERE id = ?`,
       updateParams
     );
-
-    // Update customer timer based on refill status
-    try {
-      const refillRequest = existingRows[0];
-      const tableId = refillRequest.table_id;
-
-      if (status === 'completed') {
-        // Stop the customer timer when refill is completed
-        await pool.execute(
-          `UPDATE customer_timers 
-           SET is_active = 0, end_time = NOW(), 
-               elapsed_seconds = TIMESTAMPDIFF(SECOND, start_time, NOW()),
-               updated_at = NOW()
-           WHERE table_id = ? AND is_active = 1`,
-          [tableId]
-        );
-        console.log('✅ Stopped customer timer - refill completed');
-      } else if (status === 'in_progress') {
-        // Ensure timer is active when refill is in progress
-        const [activeTimerRows] = await pool.execute<RowDataPacket[]>(
-          'SELECT id FROM customer_timers WHERE table_id = ? AND is_active = 1',
-          [tableId]
-        );
-
-        if (activeTimerRows.length === 0) {
-          // Create new timer if none exists
-          let customerName = 'Walk-in Customer';
-          if (refillRequest.customer_id) {
-            const [customerRows] = await pool.execute<RowDataPacket[]>(
-              'SELECT first_name, last_name FROM customers WHERE id = ?',
-              [refillRequest.customer_id]
-            );
-            if (customerRows.length > 0) {
-              const customer = customerRows[0];
-              customerName = `${customer.first_name} ${customer.last_name}`.trim();
-            }
-          }
-
-          await pool.execute(
-            `INSERT INTO customer_timers 
-              (customer_name, table_id, start_time, is_active, created_at, updated_at)
-            VALUES (?, ?, NOW(), 1, NOW(), NOW())`,
-            [customerName, tableId]
-          );
-          console.log('✅ Created customer timer - refill in progress');
-        }
-      }
-    } catch (timerError) {
-      console.error('Error updating customer timer for refill status:', timerError);
-      // Don't fail the refill status update if timer update fails
-    }
+    // Note: Previously, status changes for refill requests also started or
+    // stopped related customer_timers. This behavior has been removed to fully
+    // decouple refills from customer_timers.
     
     // Fetch updated refill request
     const [updatedRows] = await pool.execute<RowDataPacket[]>(

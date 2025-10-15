@@ -22,6 +22,7 @@ const customers_1 = __importDefault(require("./routes/customers"));
 const orders_1 = __importDefault(require("./routes/orders"));
 const feedback_1 = __importDefault(require("./routes/feedback"));
 const refills_1 = __importDefault(require("./routes/refills"));
+const timers_1 = __importDefault(require("./routes/timers"));
 // Import middleware
 const errorHandler_1 = require("./middleware/errorHandler");
 const database_1 = require("./config/database");
@@ -73,6 +74,7 @@ app.use('/api/customers', customers_1.default);
 app.use('/api/orders', orders_1.default);
 app.use('/api/feedback', feedback_1.default);
 app.use('/api/refill-requests', refills_1.default);
+app.use('/api/timers', timers_1.default);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({

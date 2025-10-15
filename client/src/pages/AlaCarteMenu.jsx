@@ -53,7 +53,10 @@ export default function AlaCarteMenu() {
   }
 
   const formatPrice = (price) => {
-    return `₱${parseFloat(price).toFixed(0)}`
+    // Return empty string for missing/invalid/zero prices so UI doesn't show ₱0
+    const num = parseFloat(price)
+    if (Number.isNaN(num) || price === null || price === undefined || num === 0) return ''
+    return `₱${num.toFixed(0)}`
   }
   return (
     <>
@@ -98,7 +101,7 @@ export default function AlaCarteMenu() {
                       e.target.src = fallbackImages[index % fallbackImages.length]
                     }}
                   />
-                  {item.is_premium && (
+                  {(item.is_premium === true || item.is_premium === 1) && (
                     <div className="premium-badge" style={{
                       position: 'absolute',
                       top: '10px',
@@ -119,7 +122,9 @@ export default function AlaCarteMenu() {
                       {item.description || 'Delicious Korean-style dish served with premium ingredients'}
                     </div>
                   </div>
-                  <div className="price-tag">{formatPrice(item.selling_price)}</div>
+                  {formatPrice(item.selling_price) && (
+                    <div className="price-tag">{formatPrice(item.selling_price)}</div>
+                  )}
                 </div>
               ))}
             </div>

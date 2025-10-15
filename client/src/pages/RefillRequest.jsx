@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { createRefillRequest, getTableTimer, isPosConfigured, updateRefillRequestStatus, stopCustomerTimer, getCustomerTimer, createCustomerTimer } from '../api/pos.js'
+import { createRefillRequest, getTableTimer, isPosConfigured, updateRefillRequestStatus } from '../api/pos.js'
 import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
@@ -103,37 +103,9 @@ export default function RefillRequest() {
 
   const navigate = useNavigate();
 
-  // Function to create customer timer when table code is available
-  async function createCustomerTimerForTable(tableCode) {
-    if (!tableCode || !isPosConfigured()) return;
-    
-    try {
-      // Get customer name if logged in
-      let customerName = 'Walk-in Customer';
-      const customerId = localStorage.getItem('customerId');
-      if (customerId) {
-        const customerFirstName = localStorage.getItem('customerFirstName') || '';
-        const customerLastName = localStorage.getItem('customerLastName') || '';
-        if (customerFirstName || customerLastName) {
-          customerName = `${customerFirstName} ${customerLastName}`.trim();
-        }
-      }
-
-      console.log('🕒 Creating customer timer for table:', tableCode);
-      const timerRes = await createCustomerTimer({
-        customer_name: customerName,
-        table_code: tableCode
-      });
-
-      if (timerRes?.ok) {
-        console.log('✅ Customer timer created/updated in database:', timerRes.data);
-      } else {
-        console.warn('Failed to create customer timer:', timerRes);
-      }
-    } catch (error) {
-      console.error('Error creating customer timer:', error);
-    }
-  }
+  // Note: Previously, creating a refill would also create a customer timer record
+  // in the database. This linkage has been removed intentionally to fully
+  // decouple the refill flow from customer_timers.
 
   // Function to update refill status to completed when timer ends
   async function updateRefillStatusToCompleted() {
@@ -149,20 +121,6 @@ export default function RefillRequest() {
       if (res?.ok) {
         console.log('✅ Refill request marked as completed')
         setMeta((m) => ({ ...m, status: 'Completed' }))
-        
-        // Also stop the customer timer in the database
-        if (meta.tableCode && isPosConfigured()) {
-          try {
-            const timerRes = await stopCustomerTimer(meta.tableCode)
-            if (timerRes?.ok) {
-              console.log('✅ Customer timer stopped in database')
-            } else {
-              console.warn('Failed to stop customer timer:', timerRes)
-            }
-          } catch (timerError) {
-            console.error('Error stopping customer timer:', timerError)
-          }
-        }
       } else {
         console.error('Failed to update refill status:', res)
       }
@@ -258,10 +216,7 @@ export default function RefillRequest() {
     
     // Only update if we have valid table code
     if (adminTableCode && adminTableCode.trim() !== '') {
-      setMeta((m) => ({ ...m, tableCode: adminTableCode, tableNumber: adminTableNumber, status: adminStatus }))
-      
-      // Create customer timer immediately when table code is set
-      createCustomerTimerForTable(adminTableCode)
+  setMeta((m) => ({ ...m, tableCode: adminTableCode, tableNumber: adminTableNumber, status: adminStatus }))
     } else {
       console.warn('⚠️ No valid table code found, redirecting to /refilling')
       navigate('/refilling')
@@ -272,24 +227,6 @@ export default function RefillRequest() {
   useEffect(() => {
     async function fetchTimer() {
       if (!isPosConfigured() || !meta.tableCode) return
-      
-      // Try to fetch customer timer from database first
-      try {
-        const customerTimerRes = await getCustomerTimer(meta.tableCode)
-        if (customerTimerRes?.ok && customerTimerRes?.data) {
-          const timerData = customerTimerRes.data
-          const elapsedSeconds = timerData.current_elapsed_seconds || 0
-          
-          // If timer is active, we can use it to sync our frontend timer
-          if (timerData.is_active) {
-            console.log('📊 Found active customer timer in database:', timerData)
-            // You could sync with the database timer here if needed
-            // For now, we'll let the local timer continue as configured
-          }
-        }
-      } catch (error) {
-        console.warn('Could not fetch customer timer:', error)
-      }
       
       // Fallback to original table timer logic
       const res = await getTableTimer(meta.tableCode)
