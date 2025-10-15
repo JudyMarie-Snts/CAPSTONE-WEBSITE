@@ -65,12 +65,12 @@ export default function Feedback() {
   return (
     <>
       <Nav />
-      <main style={{ paddingTop: 90 }}>
+      <main style={{ paddingTop: 70 }}>
         {/* Hero Section */}
-        <section className="hero" style={{ background: `url(${heroImage}) no-repeat center center/cover`, height: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', color: 'white', position: 'relative', marginTop: 70 }}>
+        <section className="hero" style={{ background: `url(${heroImage}) no-repeat center center/cover`, height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', color: 'white', position: 'relative' }}>
           <div style={{ content: '', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.5)' }}></div>
           <div className="hero-content" style={{ position: 'relative', zIndex: 2, maxWidth: '800px', padding: '0 20px' }}>
-            <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '20px', lineHeight: '1.1', color: '#d32f2f' }}>
+            <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '20px', lineHeight: '1.1', color: 'white' }}>
               DISCOVER KOREAN BBQ<br/>EXCELLENCE
             </h1>
             <p style={{ fontSize: '1.2rem', marginBottom: '30px', opacity: '0.9' }}>

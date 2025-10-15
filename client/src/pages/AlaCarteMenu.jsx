@@ -59,69 +59,72 @@ export default function AlaCarteMenu() {
     <>
       <Nav />
       <main style={{ paddingTop: 90 }}>
-        <h1 style={{ textAlign: 'center', fontSize: '36px', color: '#d60000', marginBottom: '10px' }}>
-          ALA CARTE MENU
-        </h1>
-        <p style={{ textAlign: 'center', fontSize: '18px', maxWidth: '700px', margin: '0 auto 40px' }}>
-          From delicious cups to individual servings — SISZUMgyupsal's Ala Carte Menu offers
-          Korean favorites in perfect portions for every craving!
-        </p>
+        <header style={{ padding: '110px 20px 10px 20px' }}>
+          <h1 style={{ textAlign: 'center', fontSize: '36px', color: '#d60000', marginBottom: '10px' }}>
+            ALA CARTE MENU
+          </h1>
+          <p style={{ textAlign: 'center', fontSize: '18px', maxWidth: '700px', margin: '0 auto 40px' }}>
+            From delicious cups to individual servings — SISZUMgyupsal's Ala Carte Menu offers
+            Korean favorites in perfect portions for every craving!
+          </p>
 
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            Loading ala carte menu items...
-          </div>
-        )}
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              Loading ala carte menu items...
+            </div>
+          )}
 
-        {error && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
-            Unable to load menu items at the moment. Please try again later.
-          </div>
-        )}
+          {error && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
+              Unable to load menu items at the moment. Please try again later.
+            </div>
+          )}
 
-        {!loading && !error && menuItems.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            No ala carte menu items available yet.
-          </div>
-        )}
+          {!loading && !error && menuItems.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              No ala carte menu items available yet.
+            </div>
+          )}
 
-        {!loading && !error && menuItems.length > 0 && (
-          <div className="menu-grid" style={{ display: 'flex', justifyContent: 'center', gap: '40px', padding: '20px 10px 60px 10px', flexWrap: 'wrap' }}>
-            {menuItems.map((item, index) => (
-              <div key={item.id} className="card" style={{ width: '320px', position: 'relative' }}>
-                <img 
-                  src={getItemImage(item, index)} 
-                  alt={item.name}
-                  onError={(e) => {
-                    e.target.src = fallbackImages[index % fallbackImages.length]
-                  }}
-                />
-                {(item.is_premium === true || item.is_premium === 1) && (
-                  <div className="premium-badge" style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    background: '#ffd700',
-                    color: '#000',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}>
-                    PREMIUM
+          {!loading && !error && menuItems.length > 0 && (
+            <div className="menu-grid">
+              {menuItems.map((item, index) => (
+                <div key={item.id} className="card" style={{ position: 'relative' }}>
+                  <img 
+                    src={getItemImage(item, index)} 
+                    alt={item.name}
+                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                    onError={(e) => {
+                      e.target.src = fallbackImages[index % fallbackImages.length]
+                    }}
+                  />
+                  {item.is_premium && (
+                    <div className="premium-badge" style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      background: '#ffd700',
+                      color: '#000',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}>
+                      PREMIUM
+                    </div>
+                  )}
+                  <div className="card-content">
+                    <div className="card-title">{item.name}</div>
+                    <div className="card-desc">
+                      {item.description || 'Delicious Korean-style dish served with premium ingredients'}
+                    </div>
                   </div>
-                )}
-                <div className="card-content">
-                  <div className="card-title">{item.name}</div>
-                  <div className="card-desc">
-                    {item.description || 'Delicious Korean-style dish served with premium ingredients'}
-                  </div>
+                  <div className="price-tag">{formatPrice(item.selling_price)}</div>
                 </div>
-                <div className="price-tag">{formatPrice(item.selling_price)}</div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </header>
       </main>
       <Footer />
     </>

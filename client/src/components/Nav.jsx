@@ -16,7 +16,7 @@ export default function Nav() {
   return (
     <nav>
       <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center', minWidth: '200px', textDecoration: 'none' }}>
-        <img src={websiteLogo} alt="SISZUM Gyupsal Logo" style={{ cursor: 'pointer' }} />
+        <img src={websiteLogo} alt="SISZUM Gyupsal Logo" />
       </Link>
       
       {/* Mobile Menu Toggle */}
