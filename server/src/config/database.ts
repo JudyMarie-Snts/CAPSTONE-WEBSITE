@@ -20,7 +20,9 @@ const dbConfig = {
   ssl: process.env.DB_SSL === 'true' ? {
     rejectUnauthorized: false
   } : undefined,
-  debug: process.env.NODE_ENV === 'development'
+  // Disable mysql2 verbose debug logs by default; enable only when explicitly requested
+  // This prevents noisy console.trace output in production logs
+  debug: process.env.DB_DEBUG === 'true'
 };
 
 // Create connection pool

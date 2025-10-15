@@ -4,8 +4,8 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  // Allows opening built files via file:// by making asset paths relative
-  base: './',
+  // Use absolute base for production hosting on Render
+  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './client/src'),

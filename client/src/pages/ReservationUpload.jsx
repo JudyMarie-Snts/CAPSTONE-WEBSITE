@@ -283,41 +283,31 @@ export default function ReservationUpload() {
         throw new Error('Authentication token not found');
       }
 
-      // Update reservation with payment information
-      const updateData = {
-        payment_status: 'paid',
-        payment_amount: 100.00,
-        status: 'confirmed'
-      };
+      // Upload proof of payment via multipart form-data
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
 
-      console.log('Updating reservation with payment data:', updateData);
-      console.log('Reservation ID for update:', reservationId);
-      console.log('Update URL:', `${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations/${reservationId}`);
-
-      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations/${reservationId}`, {
-        method: 'PUT',
+      const uploadResponse = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/reservations/${reservationId}/payment-proof`, {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(updateData)
+        body: formData
       });
 
-      const responseData = await response.json();
+      const uploadData = await uploadResponse.json();
 
-      if (!response.ok) {
-        throw new Error(responseData.message || `Failed to update reservation. Status: ${response.status}`);
+      if (!uploadResponse.ok || !uploadData.success) {
+        throw new Error(uploadData.message || `Failed to upload proof. Status: ${uploadResponse.status}`);
       }
 
-      console.log('Reservation updated successfully:', responseData);
-
-      // Navigate to confirmation page
-      navigate("/reservation-confirmed", {
+      // Navigate to pending review page
+      navigate("/reservation-pending", {
         state: {
           ...reservationData,
           phoneNumber,
           uploadedFile: uploadedFile.name,
-          paymentStatus: "completed",
+          paymentStatus: "pending_review",
           reservationId,
         },
       });
@@ -325,7 +315,7 @@ export default function ReservationUpload() {
     } catch (error) {
       console.error('Payment update error:', error);
       setErrors({
-        submit: error.message || 'Failed to process payment. Please try again.'
+        submit: error.message || 'Failed to upload proof. Please try again.'
       });
     } finally {
       setIsUploading(false);
