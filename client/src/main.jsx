@@ -4,8 +4,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './utils/testConnection.js' // Test backend connection on startup
 import App from './App.jsx'
 import Feedback from './pages/Feedback.jsx'
-import Register from './pages/Register.jsx'
-import Login from './pages/Login.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import SuccessNewPassword from './pages/SuccessNewPassword.jsx'
 import ResetPasswordReservation from './pages/ResetPasswordReservation.jsx'
@@ -36,8 +34,6 @@ const router = createBrowserRouter([
   { path: '/feedback', element: <Feedback /> },
   { path: '/feedback-form', element: <FeedbackForm /> },
   { path: '/feedback-submitted', element: <FeedbackSubmitted /> },
-  { path: '/login', element: <Login /> },
-  { path: '/register', element: <Register /> },
   { path: '/reset-password', element: <ResetPassword /> },
   { path: '/reset-success', element: <SuccessNewPassword /> },
   { path: '/promos', element: <Promos /> },

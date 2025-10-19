@@ -257,7 +257,7 @@ export default function Feedback() {
                   </button>
                 </div>
                 
-                <Link to="/login?redirect=/feedback-form" className="leave-review-btn" style={{ marginTop: '20px', display: 'inline-block' }}>
+                <Link to="/feedback-form" className="leave-review-btn" style={{ marginTop: '20px', display: 'inline-block' }}>
                   LEAVE A REVIEW!
                 </Link>
               </div>
@@ -270,12 +270,11 @@ export default function Feedback() {
           <div className="feedback-container">
             <div className="feedback-info">
               <h3>WE WANT TO HEAR FROM YOU!</h3>
-              <h4>LOG IN TO SHARE YOUR REVIEW.</h4>
+              <h4>SHARE YOUR REVIEW WITH US!</h4>
               <p>Everyone is welcome to share their thoughts, comments, and suggestions!</p>
-              <p>To leave a review or comment, please log in or register first.</p>
+              <p>Click the button below to leave your review and help us improve our service.</p>
               <div className="auth-buttons">
-                <Link to="/login?redirect=/feedback-form" className="auth-btn">Log In</Link>
-                <Link to="/register?redirect=/feedback-form" className="auth-btn">Sign Up</Link>
+                <Link to="/feedback-form" className="auth-btn">Leave a Review</Link>
               </div>
             </div>
             <div className="feedback-form-right">

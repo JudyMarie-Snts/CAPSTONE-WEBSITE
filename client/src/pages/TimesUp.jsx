@@ -39,8 +39,9 @@ export default function TimesUp() {
               <h2 style={{ margin: 0, fontWeight: 900, letterSpacing: 3, fontSize: '2.2rem', background: 'linear-gradient(135deg,#fff,#fbbf24)', WebkitBackgroundClip: 'text', color: 'transparent' }}>TIME'S UP</h2>
               <p style={{ marginTop: 12, marginBottom: 22, color: '#e5e7eb', fontWeight: 600 }}>Your time has officially ended. Thank you for dining with us.</p>
 
-              {/* Single action */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              {/* Action buttons */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <Link to="/feedback-form" style={{ background: '#059669', color: '#fff', textDecoration: 'none', padding: '12px 22px', borderRadius: 9999, fontWeight: 900, boxShadow: '0 16px 32px rgba(5,150,105,0.35)' }}>Leave Review</Link>
                 <Link to="/" style={{ background: '#dc2626', color: '#fff', textDecoration: 'none', padding: '12px 22px', borderRadius: 9999, fontWeight: 900, boxShadow: '0 16px 32px rgba(239,68,68,0.35)' }}>Back to Home Page</Link>
               </div>
 
