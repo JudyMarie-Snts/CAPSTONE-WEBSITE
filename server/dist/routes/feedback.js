@@ -66,6 +66,53 @@ router.get('/', auth_1.authenticateToken, async (req, res) => {
         });
     }
 });
+// Create anonymous feedback (public, no authentication required)
+router.post('/anonymous', async (req, res) => {
+    try {
+        const { customer_name, email, feedback_type = 'general', rating, feedback_text } = req.body;
+        // Validate required fields
+        if (!feedback_text) {
+            return res.status(400).json({
+                success: false,
+                message: 'Feedback text is required'
+            });
+        }
+        // Validate rating if provided
+        if (rating && (rating < 1 || rating > 5)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Rating must be between 1 and 5'
+            });
+        }
+        const query = `
+      INSERT INTO customer_feedback (
+        customer_name, email, feedback_type, 
+        rating, feedback_text, status
+      ) VALUES (?, ?, ?, ?, ?, 'pending')
+    `;
+        const [result] = await database_1.pool.execute(query, [
+            customer_name || 'Anonymous Customer',
+            email || 'anonymous@feedback.com',
+            feedback_type,
+            rating || null,
+            feedback_text
+        ]);
+        const response = {
+            success: true,
+            message: 'Feedback submitted successfully',
+            data: { id: result.insertId }
+        };
+        res.status(201).json(response);
+    }
+    catch (error) {
+        console.error('Error creating anonymous feedback:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit feedback',
+            error: error.message
+        });
+    }
+});
 // Create new feedback (customer)
 router.post('/', auth_1.authenticateToken, async (req, res) => {
     try {

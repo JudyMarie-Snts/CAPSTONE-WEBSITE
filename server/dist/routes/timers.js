@@ -15,8 +15,7 @@ router.get('/', async (req, res) => {
         ct.*,
         rt.table_number,
         rt.table_code,
-        o.order_code,
-        TIMESTAMPDIFF(SECOND, ct.start_time, COALESCE(ct.end_time, NOW())) as current_elapsed_seconds
+        o.order_code
       FROM customer_timers ct
       LEFT JOIN restaurant_tables rt ON ct.table_id = rt.id
       LEFT JOIN orders o ON ct.order_id = o.id
@@ -188,27 +187,8 @@ router.patch('/:id', async (req, res) => {
             updateParams.push(end_time);
         }
         if (elapsed_seconds !== undefined) {
-            // Explicit override if provided in payload
             updateFields.push('elapsed_seconds = ?');
             updateParams.push(elapsed_seconds);
-        }
-        else {
-            // If the request is turning the timer inactive or providing an end_time,
-            // compute and set the final elapsed_seconds as well for consistency
-            const isCurrentlyActive = existingRows[0].is_active === 1;
-            const deactivatingNow = is_active !== undefined ? (!is_active && isCurrentlyActive) : false;
-            const finalizing = deactivatingNow || end_time !== undefined;
-            if (finalizing) {
-                if (end_time !== undefined) {
-                    // Use provided end_time for precise calculation
-                    updateFields.push('elapsed_seconds = TIMESTAMPDIFF(SECOND, start_time, ?)');
-                    updateParams.push(end_time);
-                }
-                else {
-                    // end_time is NOW() (set above) so compute against NOW()
-                    updateFields.push('elapsed_seconds = TIMESTAMPDIFF(SECOND, start_time, NOW())');
-                }
-            }
         }
         updateFields.push('updated_at = NOW()');
         updateParams.push(id);

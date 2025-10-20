@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
@@ -9,6 +9,10 @@ export default function FeedbackForm() {
   const [rating, setRating] = useState(0)
   const [hover, setHover] = useState(0)
   const [content, setContent] = useState('')
+  const [customerName, setCustomerName] = useState('')
+  const [menuItems, setMenuItems] = useState([])
+  const [selectedMenuItem, setSelectedMenuItem] = useState('')
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   function handlePickFile() {
@@ -25,6 +29,34 @@ export default function FeedbackForm() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  // Fetch menu items on component mount
+  useEffect(() => {
+    fetchMenuItems()
+  }, [])
+
+  const fetchMenuItems = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/inventory/menu-items/all`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch menu items')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        setMenuItems(data.data || [])
+      } else {
+        throw new Error(data.message || 'Failed to fetch menu items')
+      }
+    } catch (err) {
+      console.error('Error fetching menu items:', err)
+      // Continue without menu items if fetch fails
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     
@@ -35,49 +67,25 @@ export default function FeedbackForm() {
     }
 
     try {
-      // Get user data from localStorage
-      const userDataStr = localStorage.getItem('user')
-      if (!userDataStr) {
-        alert('Please log in to submit feedback.')
-        navigate('/login?redirect=/feedback-form')
-        return
-      }
-
-      const userData = JSON.parse(userDataStr)
-      const token = userData?.token
-
-      if (!token) {
-        alert('Please log in to submit feedback.')
-        navigate('/login?redirect=/feedback-form')
-        return
-      }
-
-      // Get user info
-      const user = userData.user || userData
-      const customer_name = user.first_name 
-        ? `${user.first_name} ${user.last_name || ''}`.trim() 
-        : user.email
-
       // Prepare feedback data
       const feedbackData = {
-        customer_name: customer_name,
-        email: user.email,
+        customer_name: customerName.trim() || 'Anonymous Customer',
+        email: 'anonymous@feedback.com', // Default email for anonymous feedback
         feedback_type: 'general',
         rating: rating,
-        feedback_text: content
+        feedback_text: content.trim(),
+        menu_item_id: selectedMenuItem ? parseInt(selectedMenuItem) : null
       }
 
       console.log('Submitting feedback:', feedbackData)
 
-      // Submit feedback to API
-      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/feedback`, {
+      // Submit feedback to API (no authentication required)
+      const response = await fetch(`${import.meta.env.VITE_POS_BASE_URL || 'http://localhost:5000'}/api/feedback/anonymous`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(feedbackData),
-        credentials: 'include'
+        body: JSON.stringify(feedbackData)
       })
 
       const data = await response.json()
@@ -150,6 +158,27 @@ export default function FeedbackForm() {
               <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: 0 }}>WE WANT TO HEAR FROM YOU!</h1>
 
               <form onSubmit={handleSubmit} style={{ marginTop: 18 }}>
+                {/* Customer Information */}
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ margin: '0 0 8px', fontWeight: 700 }}>Your Name (Optional):</p>
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="Enter your name or leave blank to remain anonymous"
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      borderRadius: 8,
+                      border: '1px solid #d1d5db',
+                      background: '#fff'
+                    }}
+                  />
+                  <p style={{ fontSize: '0.8rem', color: '#666', margin: '4px 0 0 0' }}>
+                    Leave this field empty if you prefer to submit your review anonymously.
+                  </p>
+                </div>
+
                 {/* Upload photo */}
                 <div style={{ marginBottom: 14 }}>
                   <p style={{ margin: '0 0 8px', fontWeight: 700 }}>Attach your best SiSZUMgyupsal photo below:</p>
@@ -168,9 +197,43 @@ export default function FeedbackForm() {
                   </div>
                 </div>
 
+                {/* Menu Item Selection */}
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ margin: '0 0 8px', fontWeight: 700 }}>Which menu item would you like to review? (Optional):</p>
+                  <select
+                    value={selectedMenuItem}
+                    onChange={(e) => setSelectedMenuItem(e.target.value)}
+                    disabled={loading}
+                    style={{
+                      width: '100%',
+                      padding: 12,
+                      borderRadius: 8,
+                      border: '1px solid #d1d5db',
+                      background: loading ? '#f5f5f5' : '#fff',
+                      fontSize: '14px',
+                      color: loading ? '#999' : '#000',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      maxHeight: '200px',
+                      overflow: 'auto'
+                    }}
+                  >
+                    <option value="">
+                      {loading ? 'Loading menu items...' : 'Select a menu item (or leave blank for general feedback)'}
+                    </option>
+                    {!loading && menuItems.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name} - {item.category_name} (₱{parseFloat(item.selling_price).toFixed(0)})
+                      </option>
+                    ))}
+                  </select>
+                  <p style={{ fontSize: '0.8rem', color: '#666', margin: '4px 0 0 0' }}>
+                    Select a specific menu item to help us improve our offerings, or leave blank for general feedback.
+                  </p>
+                </div>
+
                 {/* Rating */}
                 <div style={{ margin: '10px 0 8px' }}>
-                  <p style={{ margin: '0 0 8px', fontWeight: 700 }}>How would you rate your SiSZUMgyupsal experience?</p>
+                  <p style={{ margin: '0 0 8px', fontWeight: 700 }}>How would you rate your SiSZUMgyupsal experience? <span style={{ color: '#dc2626' }}>*</span></p>
                   <div>
                     {[1,2,3,4,5].map((i) => (
                       <Star key={i} index={i} />
@@ -180,7 +243,7 @@ export default function FeedbackForm() {
 
                 {/* Review */}
                 <div style={{ marginTop: 12 }}>
-                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Leave a Review:</p>
+                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Leave a Review: <span style={{ color: '#dc2626' }}>*</span></p>
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}

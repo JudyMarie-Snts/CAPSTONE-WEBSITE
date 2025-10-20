@@ -69,6 +69,8 @@ export default function RefillRequest() {
   const [meat, setMeat] = useState({})
   const [food, setFood] = useState({})
   const [currentRefillId, setCurrentRefillId] = useState(null)
+  const [showWarningPopup, setShowWarningPopup] = useState(false)
+  const [warningShown, setWarningShown] = useState(false)
 
   const sideItems = [
     { name: 'Siomai', img: siomaiImg },
@@ -176,6 +178,12 @@ export default function RefillRequest() {
       const remain = Math.max(0, Math.floor((deadline - Date.now()) / 1000))
       setRemainingSec(remain)
       setMeta((m) => ({ ...m, time: formatTime(remain), status: remain === 0 ? 'Completed' : 'On-going' }))
+      
+      // Show 20-minute warning popup (1200 seconds = 20 minutes)
+      if (remain <= 1200 && remain > 0 && !warningShown) {
+        setShowWarningPopup(true)
+        setWarningShown(true)
+      }
       
       if (remain === 0) {
         // Update status to completed when timer ends
@@ -378,6 +386,66 @@ export default function RefillRequest() {
         </section>
       </main>
       <Footer />
+      
+      {/* 20-minute warning popup */}
+      {showWarningPopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 16,
+            padding: 32,
+            maxWidth: 400,
+            width: '90%',
+            textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+          }}>
+            <div style={{
+              fontSize: 48,
+              marginBottom: 16
+            }}>⏰</div>
+            <h2 style={{
+              color: '#dc2626',
+              fontWeight: 900,
+              fontSize: '1.5rem',
+              margin: '0 0 16px 0'
+            }}>LAST REFILL REMINDER!</h2>
+            <p style={{
+              color: '#374151',
+              fontSize: '1rem',
+              margin: '0 0 24px 0',
+              lineHeight: 1.5
+            }}>
+              You have <strong>20 minutes</strong> remaining! This is your last chance to request a refill before your time expires.
+            </p>
+            <button
+              onClick={() => setShowWarningPopup(false)}
+              style={{
+                background: '#dc2626',
+                color: '#fff',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: 8,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontSize: '1rem'
+              }}
+            >
+              I Understand
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }

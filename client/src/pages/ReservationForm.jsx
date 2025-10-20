@@ -223,7 +223,7 @@ export default function ReservationForm() {
   }
 
   const handleGuestsChange = (change) => {
-    const newGuests = Math.max(1, Math.min(20, formData.guests + change))
+    const newGuests = Math.max(1, Math.min(5, formData.guests + change))
     setFormData(prev => ({
       ...prev,
       guests: newGuests
@@ -780,7 +780,14 @@ export default function ReservationForm() {
                         ) : availableTables.length > 0 ? (
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
                             {console.log('Rendering tables:', availableTables)}
-                            {availableTables.map((table, index) => (
+                            {availableTables
+                              .sort((a, b) => {
+                                // Sort tables numerically by table_number
+                                const numA = parseInt(a.table_number) || 0
+                                const numB = parseInt(b.table_number) || 0
+                                return numA - numB
+                              })
+                              .map((table, index) => (
                               <button
                                 key={table.id || index}
                                 type="button"

@@ -12,6 +12,7 @@ export default function UnlimitedMenu() {
   const [menuItems, setMenuItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [expandedReviews, setExpandedReviews] = useState({})
 
   // Fallback images for menu items
   const fallbackImages = [image1, image2, image3, image4, image5, cheese]
@@ -56,6 +57,132 @@ export default function UnlimitedMenu() {
     const num = parseFloat(price)
     if (Number.isNaN(num) || price === null || price === undefined || num === 0) return ''
     return `₱${num.toFixed(0)}`
+  }
+
+  const renderStars = (rating, totalReviews) => {
+    const stars = []
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 >= 0.5
+    
+    // Full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <span key={`full-${i}`} style={{ color: '#ffd700', fontSize: '16px' }}>★</span>
+      )
+    }
+    
+    // Half star
+    if (hasHalfStar) {
+      stars.push(
+        <span key="half" style={{ color: '#ffd700', fontSize: '16px' }}>☆</span>
+      )
+    }
+    
+    // Empty stars
+    const remainingStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(
+        <span key={`empty-${i}`} style={{ color: '#ddd', fontSize: '16px' }}>☆</span>
+      )
+    }
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
+        <div>{stars}</div>
+        <span style={{ fontSize: '14px', color: '#666', marginLeft: '4px' }}>
+          {rating > 0 ? `${rating} (${totalReviews} reviews)` : 'No reviews yet'}
+        </span>
+      </div>
+    )
+  }
+
+  const toggleReviews = (itemId) => {
+    setExpandedReviews(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }))
+  }
+
+  const renderRecentReviews = (reviews, itemId) => {
+    if (!reviews || reviews.length === 0) return null
+
+    const isExpanded = expandedReviews[itemId]
+    const reviewsToShow = isExpanded ? reviews : []
+
+    return (
+      <div style={{ marginTop: '12px' }}>
+        <button
+          onClick={() => toggleReviews(itemId)}
+          style={{
+            background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+            color: 'white',
+            border: 'none',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            width: '100%',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
+            transition: 'all 0.3s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-1px)'
+            e.target.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.4)'
+            e.target.style.background = 'linear-gradient(135deg, #b91c1c 0%, #991b1b 100%)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 2px 8px rgba(220, 38, 38, 0.3)'
+            e.target.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
+          }}
+        >
+          {isExpanded ? '▲ Hide Reviews' : `▼ Show Reviews (${reviews.length})`}
+        </button>
+        
+        {isExpanded && (
+          <div style={{ 
+            marginTop: '8px', 
+            padding: '10px', 
+            background: '#f9f9f9', 
+            borderRadius: '8px',
+            maxHeight: '200px',
+            overflowY: 'auto'
+          }}>
+            {reviewsToShow.map((review, index) => (
+              <div key={index} style={{ 
+                marginBottom: '12px', 
+                paddingBottom: '12px', 
+                borderBottom: index < reviewsToShow.length - 1 ? '1px solid #e5e5e5' : 'none' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex' }}>
+                    {[1,2,3,4,5].map(star => (
+                      <span key={star} style={{ color: star <= review.rating ? '#ffd700' : '#ddd', fontSize: '12px' }}>★</span>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>
+                    {review.customer_name || 'Anonymous'}
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#999', marginLeft: 'auto' }}>
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <p style={{ margin: '0', fontSize: '13px', color: '#555', lineHeight: '1.4' }}>
+                  "{review.feedback_text}"
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
   }
   return (
     <>
@@ -120,6 +247,8 @@ export default function UnlimitedMenu() {
                     <div className="card-desc">
                       {item.description || 'All comes with Unlimited Rice, Lettuce, Side Dishes, and Drink'}
                     </div>
+                    {renderStars(item.average_rating || 0, item.total_reviews || 0)}
+                    {renderRecentReviews(item.recent_reviews, item.id)}
                   </div>
                   {formatPrice(item.selling_price) && (
                     <div className="price-tag">{formatPrice(item.selling_price)}</div>
