@@ -13,6 +13,7 @@ export default function UnlimitedMenu() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedReviews, setExpandedReviews] = useState({})
+  const [reviewPages, setReviewPages] = useState({})
 
   // Fallback images for menu items
   const fallbackImages = [image1, image2, image3, image4, image5, cheese]
@@ -101,13 +102,41 @@ export default function UnlimitedMenu() {
       ...prev,
       [itemId]: !prev[itemId]
     }))
+    // Initialize page to 0 when opening reviews
+    if (!expandedReviews[itemId]) {
+      setReviewPages(prev => ({
+        ...prev,
+        [itemId]: 0
+      }))
+    }
+  }
+
+  const nextReviewPage = (itemId, totalReviews) => {
+    const reviewsPerPage = 2
+    const maxPage = Math.ceil(totalReviews / reviewsPerPage) - 1
+    setReviewPages(prev => ({
+      ...prev,
+      [itemId]: Math.min((prev[itemId] || 0) + 1, maxPage)
+    }))
+  }
+
+  const prevReviewPage = (itemId) => {
+    setReviewPages(prev => ({
+      ...prev,
+      [itemId]: Math.max((prev[itemId] || 0) - 1, 0)
+    }))
   }
 
   const renderRecentReviews = (reviews, itemId) => {
     if (!reviews || reviews.length === 0) return null
 
     const isExpanded = expandedReviews[itemId]
-    const reviewsToShow = isExpanded ? reviews : []
+    const reviewsPerPage = 2
+    const currentPage = reviewPages[itemId] || 0
+    const totalPages = Math.ceil(reviews.length / reviewsPerPage)
+    const startIndex = currentPage * reviewsPerPage
+    const endIndex = startIndex + reviewsPerPage
+    const reviewsToShow = isExpanded ? reviews.slice(startIndex, endIndex) : []
 
     return (
       <div style={{ marginTop: '12px' }}>
@@ -151,9 +180,7 @@ export default function UnlimitedMenu() {
             marginTop: '8px', 
             padding: '10px', 
             background: '#f9f9f9', 
-            borderRadius: '8px',
-            maxHeight: '200px',
-            overflowY: 'auto'
+            borderRadius: '8px'
           }}>
             {reviewsToShow.map((review, index) => (
               <div key={index} style={{ 
@@ -179,6 +206,58 @@ export default function UnlimitedMenu() {
                 </p>
               </div>
             ))}
+            
+            {/* Pagination Controls - Show only if more than 2 reviews */}
+            {reviews.length > reviewsPerPage && (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginTop: '12px',
+                paddingTop: '8px',
+                borderTop: '1px solid #e5e5e5'
+              }}>
+                <button
+                  onClick={() => prevReviewPage(itemId)}
+                  disabled={currentPage === 0}
+                  style={{
+                    background: currentPage === 0 ? '#f5f5f5' : '#dc2626',
+                    color: currentPage === 0 ? '#999' : 'white',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  ← Previous
+                </button>
+                
+                <span style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>
+                  Page {currentPage + 1} of {totalPages}
+                </span>
+                
+                <button
+                  onClick={() => nextReviewPage(itemId, reviews.length)}
+                  disabled={currentPage === totalPages - 1}
+                  style={{
+                    background: currentPage === totalPages - 1 ? '#f5f5f5' : '#dc2626',
+                    color: currentPage === totalPages - 1 ? '#999' : 'white',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: currentPage === totalPages - 1 ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
