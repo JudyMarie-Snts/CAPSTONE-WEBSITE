@@ -5,6 +5,34 @@ import { RowDataPacket, OkPacket } from 'mysql2';
 
 const router = express.Router();
 
+// Get all menu items for feedback selection (no authentication required)
+router.get('/menu-items/all', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(`
+      SELECT 
+        mi.id,
+        mi.name,
+        mc.name as category_name,
+        mi.selling_price
+      FROM menu_items mi
+      LEFT JOIN menu_categories mc ON mi.category_id = mc.id
+      WHERE mi.availability = 'available'
+      ORDER BY mc.sort_order, mi.name
+    `) as [RowDataPacket[], any];
+
+    res.json({
+      success: true,
+      data: rows
+    });
+  } catch (error) {
+    console.error('Error fetching all menu items:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch menu items'
+    });
+  }
+});
+
 // Get public menu items by category (no authentication required)
 router.get('/menu/:category', async (req, res) => {
   try {
@@ -26,6 +54,7 @@ router.get('/menu/:category', async (req, res) => {
         whereClause = "WHERE mi.availability = 'available'";
     }
 
+    // First get menu items with ratings
     const [rows] = await pool.execute(`
       SELECT 
         mi.id,
@@ -36,16 +65,43 @@ router.get('/menu/:category', async (req, res) => {
         mi.image_url,
         mi.is_unlimited,
         mi.is_premium,
-        mc.name as category_name
+        mc.name as category_name,
+        COALESCE(ROUND(AVG(cf.rating), 1), 0) as average_rating,
+        COUNT(cf.rating) as total_reviews
       FROM menu_items mi
       LEFT JOIN menu_categories mc ON mi.category_id = mc.id
+      LEFT JOIN customer_feedback cf ON mi.id = cf.menu_item_id AND cf.status = 'resolved' AND cf.rating IS NOT NULL
       ${whereClause}
+      GROUP BY mi.id, mi.product_code, mi.name, mi.description, mi.selling_price, 
+               mi.image_url, mi.is_unlimited, mi.is_premium, mc.name
       ORDER BY mi.name
     `) as [RowDataPacket[], any];
 
+    // Get recent reviews for each menu item
+    const menuItemsWithReviews = await Promise.all(
+      rows.map(async (item: any) => {
+        const [reviews] = await pool.execute(`
+          SELECT 
+            customer_name,
+            rating,
+            feedback_text,
+            created_at
+          FROM customer_feedback 
+          WHERE menu_item_id = ? AND status = 'resolved' AND rating IS NOT NULL
+          ORDER BY created_at DESC
+          LIMIT 3
+        `, [item.id]) as [RowDataPacket[], any];
+
+        return {
+          ...item,
+          recent_reviews: reviews
+        };
+      })
+    );
+
     res.json({
       success: true,
-      data: rows
+      data: menuItemsWithReviews
     });
   } catch (error) {
     console.error('Error fetching menu items:', error);

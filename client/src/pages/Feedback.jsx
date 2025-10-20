@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import heroImage from '../assets/13.jpg';
-import feedback from '../assets/feedback.jpg';
-import  feedback2 from '../assets/feedback2.jpg';
+import defaultfeedback from '../assets/defaultfeedback.jpg';
 
 export default function Feedback() {
   const [resolvedFeedback, setResolvedFeedback] = useState([])
@@ -130,7 +129,7 @@ export default function Feedback() {
                 {resolvedFeedback.slice(currentIndex, currentIndex + 2).map((review, index) => (
                   <div key={review.id} className="review-card">
                     <div className="review-image" style={{ 
-                      backgroundImage: `url(${index === 0 ? feedback : feedback2})`,
+                      backgroundImage: `url(${defaultfeedback})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center'
                     }}></div>

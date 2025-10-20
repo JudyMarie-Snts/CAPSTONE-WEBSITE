@@ -223,7 +223,7 @@ export default function ReservationForm() {
   }
 
   const handleGuestsChange = (change) => {
-    const newGuests = Math.max(1, Math.min(20, formData.guests + change))
+    const newGuests = Math.max(1, Math.min(5, formData.guests + change))
     setFormData(prev => ({
       ...prev,
       guests: newGuests

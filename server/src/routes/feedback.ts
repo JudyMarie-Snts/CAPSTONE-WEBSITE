@@ -76,7 +76,8 @@ router.post('/anonymous', async (req, res) => {
       email,
       feedback_type = 'general',
       rating,
-      feedback_text
+      feedback_text,
+      menu_item_id
     } = req.body;
 
     // Validate required fields
@@ -98,8 +99,8 @@ router.post('/anonymous', async (req, res) => {
     const query = `
       INSERT INTO customer_feedback (
         customer_name, email, feedback_type, 
-        rating, feedback_text, status
-      ) VALUES (?, ?, ?, ?, ?, 'pending')
+        rating, feedback_text, menu_item_id, status
+      ) VALUES (?, ?, ?, ?, ?, ?, 'pending')
     `;
 
     const [result]: any = await pool.execute(query, [
@@ -107,7 +108,8 @@ router.post('/anonymous', async (req, res) => {
       email || 'anonymous@feedback.com',
       feedback_type,
       rating || null,
-      feedback_text
+      feedback_text,
+      menu_item_id || null
     ]);
 
     const response: ApiResponse = {
@@ -136,7 +138,8 @@ router.post('/', authenticateToken, async (req, res) => {
       feedback_type = 'general',
       rating,
       feedback_text,
-      order_id
+      order_id,
+      menu_item_id
     } = req.body;
 
     // Get customer_id from authenticated user
@@ -161,8 +164,8 @@ router.post('/', authenticateToken, async (req, res) => {
     const query = `
       INSERT INTO customer_feedback (
         customer_id, customer_name, email, feedback_type, 
-        rating, feedback_text, order_id, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
+        rating, feedback_text, order_id, menu_item_id, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     `;
 
     const [result]: any = await pool.execute(query, [
@@ -172,7 +175,8 @@ router.post('/', authenticateToken, async (req, res) => {
       feedback_type,
       rating || null,
       feedback_text,
-      order_id || null
+      order_id || null,
+      menu_item_id || null
     ]);
 
     const response: ApiResponse = {
