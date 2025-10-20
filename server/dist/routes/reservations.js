@@ -4,10 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const multer_1 = __importDefault(require("multer"));
 const express_validator_1 = require("express-validator");
 const database_1 = require("../config/database");
+const cloudinaryUpload_1 = require("../utils/cloudinaryUpload");
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
 // Get all reservations
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
@@ -339,5 +342,100 @@ router.get('/fully-booked-dates', async (req, res) => {
         });
     }
 });
+// Upload payment proof (image) to Cloudinary and update reservation record
+router.post('/:id/payment-proof', auth_1.authenticateToken, upload.single('file'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Basic ownership or admin check
+        const reservations = await (0, database_1.executeQuery)('SELECT id, customer_id, payment_proof_public_id FROM reservations WHERE id = ? LIMIT 1', [id]);
+        if (!reservations || reservations.length === 0) {
+            return res.status(404).json({ success: false, message: 'Reservation not found' });
+        }
+        const reservation = reservations[0];
+        // If user is customer, ensure they own the reservation (if customer_id is used)
+        if (req.user && req.user.role === 'customer' && reservation.customer_id && reservation.customer_id !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'Not allowed to upload for this reservation' });
+        }
+        // Validate file
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'File is required' });
+        }
+        const allowedMime = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedMime.includes(req.file.mimetype)) {
+            return res.status(400).json({ success: false, message: 'Only JPG and PNG images are allowed' });
+        }
+        const maxSize = 5 * 1024 * 1024; // 5 MB
+        if (req.file.size > maxSize) {
+            return res.status(413).json({ success: false, message: 'File too large (max 5MB)' });
+        }
+        // Delete old proof if exists
+        if (reservation.payment_proof_public_id) {
+            await (0, cloudinaryUpload_1.deleteFromCloudinary)(reservation.payment_proof_public_id);
+        }
+        // Upload new proof
+        const uploadResult = await (0, cloudinaryUpload_1.uploadToCloudinary)(req.file.buffer);
+        await (0, database_1.executeQuery)(`UPDATE reservations 
+         SET payment_proof_url = ?, 
+             payment_proof_public_id = ?, 
+             payment_proof_uploaded_at = NOW(), 
+             payment_proof_status = 'pending_review',
+             updated_at = NOW()
+         WHERE id = ?`, [uploadResult.secure_url, uploadResult.public_id, id]);
+        return res.status(200).json({
+            success: true,
+            message: 'Payment proof uploaded successfully',
+            data: {
+                url: uploadResult.secure_url,
+                publicId: uploadResult.public_id,
+                status: 'pending_review'
+            }
+        });
+    }
+    catch (error) {
+        console.error('Upload payment proof error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to upload payment proof' });
+    }
+});
 exports.default = router;
+// Admin: approve or reject payment proof
+router.patch('/:id/payment-proof/status', auth_1.authenticateToken, (0, auth_1.authorizeRole)(['admin', 'manager', 'super_admin']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action, reason } = req.body;
+        if (!action || !['approve', 'reject'].includes(action)) {
+            return res.status(400).json({ success: false, message: 'Invalid action' });
+        }
+        if (action === 'reject' && (!reason || String(reason).trim().length === 0)) {
+            return res.status(400).json({ success: false, message: 'Rejection reason is required' });
+        }
+        const reservations = await (0, database_1.executeQuery)('SELECT id, status FROM reservations WHERE id = ? LIMIT 1', [id]);
+        if (!reservations || reservations.length === 0) {
+            return res.status(404).json({ success: false, message: 'Reservation not found' });
+        }
+        if (action === 'approve') {
+            await (0, database_1.executeQuery)(`UPDATE reservations SET 
+             payment_proof_status = 'approved',
+             payment_rejection_reason = NULL,
+             payment_verified_by = ?,
+             payment_verified_at = NOW(),
+             status = 'confirmed',
+             updated_at = NOW()
+           WHERE id = ?`, [req.user.id, id]);
+        }
+        else {
+            await (0, database_1.executeQuery)(`UPDATE reservations SET 
+             payment_proof_status = 'rejected',
+             payment_rejection_reason = ?,
+             payment_verified_by = ?,
+             payment_verified_at = NOW(),
+             updated_at = NOW()
+           WHERE id = ?`, [reason, req.user.id, id]);
+        }
+        return res.status(200).json({ success: true, message: `Payment proof ${action}d` });
+    }
+    catch (error) {
+        console.error('Update payment proof status error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to update payment proof status' });
+    }
+});
 //# sourceMappingURL=reservations.js.map
