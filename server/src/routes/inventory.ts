@@ -34,7 +34,8 @@ router.get("/items", authenticateToken, async (req, res) => {
         mc.id as category_id
       FROM menu_items mi
       LEFT JOIN menu_categories mc ON mi.category_id = mc.id
-      ORDER BY mc.sort_order, mi.name
+      -- Show newest items first (FILO): order by creation time descending, then id desc as tiebreaker
+      ORDER BY mi.created_at DESC, mi.id DESC
     `)) as [RowDataPacket[], any];
 
     res.json({
